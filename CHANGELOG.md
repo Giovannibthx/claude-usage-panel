@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [3.10.0] - 2026-10-12
+
 ### Added
 
 - **Per-model limits are optional.** A setting in both panels (GNOME
