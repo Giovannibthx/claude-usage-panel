@@ -193,7 +193,8 @@ function installerCopy(t) {
 function brokenMac(home) {
     stub(home, 'uname', 'case "$1" in -s|"") echo Darwin ;; *) /bin/uname "$@" ;; esac');
     stub(home, 'swift', 'echo "error: compile failed" >&2\nexit 1');
-    for (const tool of ['osascript', 'open', 'codesign']) stub(home, tool, 'exit 0');
+    for (const tool of ['osascript', 'open', 'codesign', 'pkill']) stub(home, tool, 'exit 0');
+    stub(home, 'pgrep', 'exit 1');  // never the real one: it would find the tester's own app
 }
 
 test('a failed swift build fails the macOS target instead of shipping an empty bundle', (t) => {
