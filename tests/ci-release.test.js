@@ -169,6 +169,8 @@ test('file size: the repo itself is within the ceiling', () => {
 
 test('ci plugin-validate: a pinned CLI validates both manifests strictly, behind ci-gate', () => {
     const body = job('.github/workflows/ci.yml', 'plugin-validate');
+    // a registry stall must fail fast and retry, never sit until the job timeout
+    assert.match(body, /for attempt in 1 2 3; do\n\s+timeout \d+ npm ci /);
     assert.match(body, /npm ci [^\n]*\n\s+working-directory: \.github\/claude-cli/);
     assert.match(body, /plugin validate --strict "\$target"/);
     assert.match(body, /for target in \. plugin; do/);

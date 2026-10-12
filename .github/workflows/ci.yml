@@ -210,8 +210,17 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
-      - run: npm ci --no-audit --no-fund
+      # A stalled registry hangs npm ci with no output until the job timeout
+      # (2026-10-12: 10 min, a release left untagged). Each attempt is
+      # bounded and retried, so a stall costs minutes, not the run.
+      - name: npm ci (bounded, 3 attempts)
         working-directory: .github/claude-cli
+        run: |
+          for attempt in 1 2 3; do
+            timeout 180 npm ci --no-audit --no-fund --fetch-timeout=60000 --fetch-retries=2 && exit 0
+            echo "::warning::npm ci attempt $attempt failed or stalled after 180 s"
+          done
+          exit 1
       - name: claude plugin validate --strict (marketplace, then plugin)
         env:
           # A throwaway config dir: the validator must not depend on, or
