@@ -31,6 +31,14 @@ function mac(t, {writable = false, sha = null, bundleVersion = VERSION} = {}) {
     const home = stubbedHome(t, {prefix: 'cup-macapp-'});
     stub(home, 'uname', 'case "$1" in -s|"") echo Darwin ;; *) /bin/uname "$@" ;; esac');
     for (const tool of ['osascript', 'open', 'codesign', 'xattr']) stub(home, tool, 'exit 0');
+    // The quit: pgrep/pkill are real tools and `pkill -f ClaudeUsagePanel`
+    // would end the app of whoever runs the tests. The stubs play a running
+    // app that ignores the Apple event: alive until pkill, every call logged.
+    const calls = path.join(home, 'quit-calls');
+    stub(home, 'osascript', `echo "osascript $*" >>"${calls}"`);
+    stub(home, 'pgrep', `echo "pgrep $*" >>"${calls}"; [ -e "${calls}.killed" ] && exit 1; exit 0`);
+    stub(home, 'pkill', `echo "pkill $*" >>"${calls}"; : >"${calls}.killed"`);
+    stub(home, 'open', `echo "open $*" >>"${calls}"`);
     const system = path.join(home, 'system-Applications');
     fs.mkdirSync(system);
     if (!writable) {
@@ -62,7 +70,7 @@ function mac(t, {writable = false, sha = null, bundleVersion = VERSION} = {}) {
         CUP_TEST_SYSTEM_APPS: system,
         CUP_RELEASE_BASE: pathToFileURL(path.join(home, 'release')).href,
     };
-    return {home, system, env, userApps: path.join(home, 'Applications')};
+    return {home, system, env, userApps: path.join(home, 'Applications'), calls};
 }
 
 const installed = (dir) => fs.existsSync(path.join(dir, APP, 'Contents', 'MacOS', 'ClaudeUsagePanel'));
@@ -75,6 +83,20 @@ test('no admin: the release zip goes to ~/Applications, nothing written to /Appl
     assert.ok(installed(m.userApps));
     assert.ok(!installed(m.system));
     assert.match(r.stdout, new RegExp(`installed to ${m.userApps}/${APP}`));
+});
+
+test('an install quits the running app by bundle id, pkill as the fallback, then relaunches', {skip: asRoot}, (t) => {
+    const m = mac(t);
+    const r = run('bash', [INSTALL, 'macos', '--prebuilt'], {env: m.env});
+    assert.equal(r.status, 0, r.stdout + r.stderr);
+    const calls = fs.readFileSync(m.calls, 'utf8').split('\n').filter(Boolean);
+    const quit = calls.findIndex(c => c === 'osascript -e tell application id "io.github.fschmutz.claude-usage-panel" to quit');
+    const kill = calls.findIndex(c => c.startsWith('pkill -f /ClaudeUsagePanel.app/Contents/MacOS/ClaudeUsagePanel'));
+    const open = calls.findIndex(c => c.startsWith('open '));
+    assert.ok(quit >= 0, `no quit by bundle id in ${calls}`);
+    assert.ok(kill > quit, 'pkill backs up the Apple event, after it');
+    assert.ok(open > kill, 'the new bundle is opened once the old app is gone');
+    assert.ok(calls.filter(c => c.startsWith('pgrep ')).length <= 10, 'the wait is bounded');
 });
 
 test('no Swift toolchain picks the release zip on its own', {skip: asRoot || fs.existsSync('/usr/bin/swift')}, (t) => {

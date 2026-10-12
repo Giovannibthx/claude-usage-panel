@@ -111,6 +111,22 @@ PLIST
     codesign --deep --force --sign - "$bundle" >/dev/null 2>&1 || true
 }
 
+# Quit the running app, wherever it was installed from. By bundle id: the
+# process is named ClaudeUsagePanel, and quitting the display name "Claude
+# Usage Panel" matched nothing, so the old code kept running under a replaced
+# bundle until the next login - read as up to date by the update check all the
+# while. pkill is the fallback for an app that ignores the Apple event; the
+# pattern covers /Applications and ~/Applications alike.
+mac_quit_running() {
+    local pattern="/$MAC_APP.app/Contents/MacOS/$MAC_APP" tries=0
+    osascript -e 'tell application id "io.github.fschmutz.claude-usage-panel" to quit' >/dev/null 2>&1 || true
+    while [ "$tries" -lt 10 ] && pgrep -f "$pattern" >/dev/null 2>&1; do
+        sleep 0.5
+        tries=$((tries + 1))
+    done
+    pkill -f "$pattern" >/dev/null 2>&1 || true
+}
+
 sha256_of() {
     # shasum is on macOS; sha256sum is not
     if command -v shasum >/dev/null; then shasum -a 256 "$1" | cut -d' ' -f1; else sha256sum "$1" | cut -d' ' -f1; fi
@@ -217,8 +233,10 @@ install_macos() {
     # Make it perpetual: install it and launch it. On first run the app
     # registers itself as a login item (toggle in Settings ▸ Start at login).
     # Quit any running instance first so we replace (not copy over) a busy bundle
-    # and so `open` relaunches the NEW binary - this is what makes upgrades take.
-    osascript -e 'quit app "Claude Usage Panel"' >/dev/null 2>&1 || true
+    # and so `open` relaunches the NEW binary - this is what makes upgrades take,
+    # the daily auto-update included: the stamp it writes says the new release
+    # runs, so the new release has to run.
+    mac_quit_running
     local installed="$dest/$MAC_APP.app"
     if mkdir -p "$dest" 2>/dev/null && rm -rf "$installed" 2>/dev/null && cp -R "$bundle" "$installed" 2>/dev/null; then
         [ -n "$tmp" ] && rm -rf "$tmp"

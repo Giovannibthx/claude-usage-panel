@@ -6,6 +6,15 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`install.sh macos` now replaces the running app.** It quit the app by its
+  display name, which matches no process, so the old code kept running under
+  the replaced bundle until the next login - while the update check, reading
+  the stamp, called it up to date. It quits by bundle id, with `pkill` as the
+  fallback, on the daily auto-update too: the menu bar blinks once, and what
+  runs is what the stamp says.
+
 ### Added
 
 - **A logo.** The gauge mark lives in `logo/` (SVG + PNG, light/dark and
