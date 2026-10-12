@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [3.10.1] - 2026-10-13
+
 ### Fixed
 
 - **`claude -p` no longer hangs with the pause hooks installed.** The
