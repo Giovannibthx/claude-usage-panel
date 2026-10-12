@@ -6,6 +6,18 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Fixed
+
+- **A paused workflow resumes from its run id instead of starting over.** The
+  pause protocol now copies each workflow script next to the checkpoint (the
+  stored one sits under the project dir of the cwd it was launched from, which
+  a reopened session may not be allowed to read) and records the stage it was
+  cut in. Work in `/tmp` or the scratch dir is moved to a durable directory and
+  every path is re-pointed, so a resumed session never re-creates `/tmp`
+  symlinks. The resume protocol passes the saved script inline with the same
+  run id when `scriptPath` is refused, and starts a fresh run only when the
+  resume itself fails.
+
 ## [3.9.0] - 2026-10-12
 
 ### Fixed

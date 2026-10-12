@@ -363,7 +363,7 @@ export function pauseRowLabel(row) {
 }
 
 // The protocol texts. The source of truth is this file; PAUSE_PROTOCOL steps
-// 3b and 5 name the checkpoint path and the report command of the request.
+// 3c and 5 name the checkpoint path and the report command of the request.
 function pauseProtocol({checkpoint, report, verdictFile, reasonFile, requestId}) {
     const cp = shellQuote(checkpoint);
     return `PAUSE PROTOCOL
@@ -403,7 +403,11 @@ anything owned by another session.
    b. Then force-stop every id from 1a that is not yet terminal, the ones that
       answered included. If the stop call says "not found", the job is already
       dead: record it as such.
-   c. For each workflow, record its run id and the exact resume call.
+   c. For each workflow, record its run id, the agent or stage it was cut in (its
+      writes may be half-applied) and the exact resume call. Copy its script next
+      to the checkpoint (same directory, <run id>.js): the stored script sits under
+      the project dir of the cwd it was launched from, which a reopened session
+      may not be allowed to read.
    d. Kill the processes from 1b. Roll back open DB transactions: never leave one
       open, never commit one just to pause.
    e. Cancel pending wake-ups, loops and session crons, and record how to re-create
@@ -413,7 +417,11 @@ anything owned by another session.
    scratch dir: those die with the session or a reboot.
    a. Leave half-done edits in the working tree. No stash, no reset, no revert.
       Commit only what passes the gates.
-   b. Overwrite ONE checkpoint file, at this fixed path (create its directory if
+   b. Move work out of /tmp and the scratch dir to a durable directory, then
+      re-point every path that names the old place (scripts, constants, workflow
+      args) to the new one. A copy that scripts do not use is not saved: the
+      resumed session must never re-create /tmp paths or symlinks.
+   c. Overwrite ONE checkpoint file, at this fixed path (create its directory if
       needed); the next session reads it first:
       ${checkpoint}
       It must be enough to resume with no other context:
@@ -469,8 +477,11 @@ ${where}
 2. For any action that was cut off mid-flight, check whether it took effect before
    redoing it (commit landed? file written? deploy started?).
 3. Run the recorded smoke check on the dirty trees before any new work.
-4. Re-arm: resume each workflow from its run id, restart the needed monitors and
-   watchers, re-check the external runs.
+4. Re-arm: resume each workflow from its run id (resumeFromRunId keeps every
+   finished agent's result). When its scriptPath is refused, pass the saved script
+   inline (\`script\`) with the same run id and the durable paths as args. Start a
+   fresh run only when the resume itself fails, and say why. Restart the needed
+   monitors and watchers, re-check the external runs.
 5. Continue the next steps without asking again. Report only what needs the user.`;
 }
 
