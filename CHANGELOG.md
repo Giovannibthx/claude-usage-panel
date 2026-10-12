@@ -6,6 +6,18 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- **One Sessions section, or tabs.** "Waiting on you", "Pause / resume" and
+  "Today's sessions" now show as one *Sessions* list in both panels, one row
+  per session: waiting first, then running, then the ones that ended today
+  (folded). Each row shows how long it has waited, its pause state and
+  today's tokens, with Pause on the row. A new setting (GNOME
+  `sessions-layout`, macOS `sessionsLayout`, under Sessions) picks **One
+  merged list** (default), **Tabs** (Waiting / Live / Today) or **Separate
+  sections** (the old layout). Each section's own switch still decides what
+  is read.
+
 ## [3.7.0] - 2026-10-09
 
 ### Added

@@ -21,7 +21,7 @@ import {fileURLToPath} from 'node:url';
 import {
   normalizeUsage, poolNote, sparkline, formatResets, forecast, formatForecast,
   clockPace,
-  severityClass, compactTokens, formatAccountUsage,
+  severityClass, compactTokens, formatAccountUsage, sessionBoard, boardMetaParts,
 } from '../../claude-usage-panel@fschmutz.github.io/lib/pure.js';
 import {storySvg} from './story.mjs';
 
@@ -150,20 +150,32 @@ text(PAD, y, `Updated ${DATA.updated}`, 11, C.dim);
 y += 17;
 text(PAD, y, `Session pings: last ${DATA.ping.last} · next ${DATA.ping.next}`, 11, C.dim);
 y += 26;
-// Waiting on you: live sessions blocked on a permission prompt or a question.
-text(PAD, y, 'Waiting on you', 13, C.warning, 'font-weight="700"');
-for (const w of DATA.waiting) {
+// Sessions: Waiting on you + the running ones + today's spend joined into
+// one list per session (the default `sessions-layout`, lib/pure/board.js),
+// ended ones folded under one line.
+const board = sessionBoard({
+  waiting: DATA.waiting.map((w, i) => ({sessionId: w.label, pid: 100 + i, name: w.label, reason: w.reason, age: w.age, at: i})),
+  pause: DATA.live.map((l, i) => ({sessionId: l, pid: 200 + i, name: l, state: null})),
+  today: DATA.sessions.map(s => ({sessionId: s.label, label: s.label, tokens: s.tokens, when: s.when})),
+});
+const c = board.counts;
+text(PAD, y, 'Sessions', 13, C.text, 'font-weight="700"');
+parts.push(`<text x="${W - PAD}" y="${y}" font-size="11" fill="${C.dim}" ${FONT} text-anchor="end">${esc(`${c.waiting} waiting · ${c.live} live · ${c.today} today (est.)`)}</text>`);
+// The words for lib/pure/board.js boardMetaParts, as the GNOME board says them.
+const meta = r => boardMetaParts(r).map(p => (
+  p.kind === 'waiting' ? `waiting ${p.age} · ${p.reason}`
+    : p.kind === 'pause' ? p.state
+      : p.kind === 'running' ? 'running'
+        : `${compactTokens(p.tokens)}  ${p.when}`)).join(' · ');
+for (const r of board.rows.filter(r => r.status !== 'ended')) {
   y += 19;
-  text(PAD, y, `\u25b8 ${w.label}`, 12, C.text, 'font-weight="600"');
-  parts.push(`<text x="${W - PAD}" y="${y}" font-size="11" fill="${C.dim}" ${FONT} text-anchor="end">${esc(`${w.reason}  ${w.age}`)}</text>`);
+  text(PAD, y, `\u25b8 ${r.name}`, 12, C.text, 'font-weight="600"');
+  parts.push(`<text x="${W - PAD}" y="${y}" font-size="11" fill="${r.waiting ? C.warning : C.dim}" ${FONT} text-anchor="end">${esc(meta(r))}</text>`);
 }
-y += 26;
-// Today's sessions: ranked by the tokens they spent, each row a resume click.
-text(PAD, y, "Today's sessions (est.)", 13, C.text, 'font-weight="700"');
-for (const s of DATA.sessions) {
+const ended = board.rows.filter(r => r.status === 'ended').length;
+if (ended) {
   y += 19;
-  text(PAD, y, `\u25b8 ${s.label}`, 12, C.text, 'font-weight="600"');
-  parts.push(`<text x="${W - PAD}" y="${y}" font-size="11" fill="${C.dim}" ${FONT} text-anchor="end">${esc(`${compactTokens(s.tokens)}  ${s.when}`)}</text>`);
+  text(PAD, y, `\u25b8 ${ended} ended today`, 11, C.dim);
 }
 y += 26;
 text(PAD, y, 'Cursor', 13, C.text, 'font-weight="700"');

@@ -98,7 +98,8 @@ claude-usage-panel@fschmutz.github.io/   # GNOME Shell extension (GJS / ESM)
     │   ├── snapshots.js# the claudectl snapshot summary the preferences show
     │   ├── layout.js   # dropdown geometry (GNOME-only: no Swift mirror)
     │   ├── waiting.js  # waiting-on-you list: hook events, markers, age, focus plan
-    │   └── pause.js    # pause / resume: request, delivery and verdict shapes, row state, the protocol texts
+    │   ├── pause.js    # pause / resume: request, delivery and verdict shapes, row state, the protocol texts
+    │   └── board.js    # the session board: waiting + pause + today's sessions joined per session id
     ├── claudeFiles.js  # the live credentials + oauthAccount, read one way
     ├── claudeUsage.js  # /oauth/usage fetch (live or saved token)
     ├── accounts.js     # the account store's GJS I/O
@@ -114,6 +115,8 @@ claude-usage-panel@fschmutz.github.io/   # GNOME Shell extension (GJS / ESM)
     ├── sessionsSection.js # the dropdown's today's-sessions rows + terminal launch
     ├── waiting.js      # live-session registry + waiting markers (GJS I/O)
     ├── waitingSection.js # the dropdown's waiting-on-you rows + focus
+    ├── boardSection.js # the merged / tabbed Sessions section: draws what the session group hands it
+    ├── sessionGroup.js # waiting + pause + today's sessions + the board: read each, draw once per layout
     ├── pause.js        # pause / resume rows from the claudectl store (async reads; the panel never writes)
     ├── pauseSection.js # the dropdown's Pause all / Resume all, per-session Pause + state, via claudectl
     ├── sessionPing.js  # reads/writes the systemd units + the last-ping stamp
@@ -148,6 +151,7 @@ macos/                  # native SwiftUI MenuBarExtra app (SwiftPM)
     │   ├── WindowPlanner.swift       # session-window planner (twin of pure/pings.js)
     │   ├── Snapshots.swift           # the claudectl snapshot summary
     │   ├── Waiting.swift             # waiting-on-you list (twin of pure/waiting.js)
+    │   ├── SessionBoard.swift        # the session board join (twin of pure/board.js)
     │   ├── Pause.swift               # pause / resume shapes, row state, summary (twin of pure/pause.js)
     │   ├── HttpFailure.swift         # usage-endpoint error bodies, transient statuses
     │   ├── ShellQuote.swift          # POSIX single-quoting
@@ -178,6 +182,7 @@ macos/                  # native SwiftUI MenuBarExtra app (SwiftPM)
         ├── Waiting.swift             # live-session registry + waiting markers + focus
         ├── PauseState.swift          # pause / resume through claudectl, followed until terminal
         ├── PauseView.swift           # the opt-in Pause section in the popup and Settings
+        ├── SessionBoardView.swift    # the merged / tabbed Sessions section in the popup
         ├── SavedSessions.swift       # the claudectl snapshot store in Settings
         ├── SessionPing.swift         # the launchd agent (twin of the systemd units)
         ├── SessionPingSettings.swift # session pings as the UI sees them
