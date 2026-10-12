@@ -14,6 +14,15 @@ semantic versioning.
   (`AppIcon.icns`, so Finder, Login Items and the Settings window stop
   showing the generic one), the README, the site's favicon + touch icon,
   and the OpenGraph card.
+- **A live gauge in both top bars.** The logo's arc is drawn with the real
+  percentage of the panel card and colored by its tone: green at normal,
+  amber from the API's warning or a forecast that runs dry before the reset,
+  red at critical; an empty track when there is no honest reading, a full
+  amber arc when the poll failed. It replaces the `✳` glyph on GNOME and the
+  emoji dot in the macOS menu-bar title. On purpose, normal is green here
+  while the dropdown cards keep the Claude orange accent: the top bar is a
+  traffic light, the cards are the brand. Pinned across both ports by
+  `tests/fixtures/gauge.json`.
 
 ## [3.8.0] - 2026-10-12
 
