@@ -6,6 +6,15 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- **A logo.** The gauge mark lives in `logo/` (SVG + PNG, light/dark and
+  mono variants, see `logo/README.md`) and reaches every surface: the GNOME
+  top bar and the macOS menu bar (see below), the macOS app icon
+  (`AppIcon.icns`, so Finder, Login Items and the Settings window stop
+  showing the generic one), the README, the site's favicon + touch icon,
+  and the OpenGraph card.
+
 ## [3.8.0] - 2026-10-12
 
 ### Added

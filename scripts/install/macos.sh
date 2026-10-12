@@ -79,6 +79,11 @@ mac_build_bundle() {
         cp "$ROOT/scripts/session-ping.sh" "$ROOT/scripts/lib.sh" \
             "$bundle/Contents/Resources/" || exit 1
         chmod +x "$bundle/Contents/Resources/session-ping.sh" || exit 1
+        # The app icon (Finder, Login Items, the Settings window), from the
+        # logo's iconset. The release zip is built here too, so --prebuilt
+        # gets it for free. The menu bar draws its own gauge, no image needed.
+        iconutil -c icns "$ROOT/macos/AppIcon.iconset" \
+            -o "$bundle/Contents/Resources/AppIcon.icns" || exit 1
         cat >"$bundle/Contents/Info.plist" <<PLIST || exit 1
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -91,6 +96,7 @@ mac_build_bundle() {
   <key>CFBundleShortVersionString</key><string>$ver</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleExecutable</key><string>$MAC_APP</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>
 </dict>
