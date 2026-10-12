@@ -313,6 +313,8 @@ public struct PausePanelRow: Equatable, Sendable, Identifiable {
     public let name: String
     public let cwd: String
     public let live: Bool
+    /// The running process (focus, the session board); nil when it is not.
+    public let pid: Int?
     /// Where it stands on the current request; nil when it is not a target.
     public let row: PauseRow?
     public let label: String
@@ -367,14 +369,14 @@ extension Pause {
             out.append(
                 PausePanelRow(
                     sessionId: r.sessionId, name: r.name,
-                    cwd: r.cwd, live: l != nil, row: r.row,
+                    cwd: r.cwd, live: l != nil, pid: l?.pid, row: r.row,
                     label: r.row.map(rowLabel) ?? r.state))
         }
         for l in live where isSessionId(l.sessionId) && seen.insert(l.sessionId).inserted {
             out.append(
                 PausePanelRow(
                     sessionId: l.sessionId, name: rowName(l.sessionId, name: l.name, cwd: l.cwd),
-                    cwd: cleanText(l.cwd) ?? "", live: true,
+                    cwd: cleanText(l.cwd) ?? "", live: true, pid: l.pid,
                     row: nil, label: "running"))
         }
         return out

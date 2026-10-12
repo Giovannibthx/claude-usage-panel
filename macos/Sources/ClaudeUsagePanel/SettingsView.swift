@@ -18,6 +18,7 @@ struct SettingsView: View {
             SettingsTab { AccountsSettingsSection(model: model) }
                 .tabItem { Label("Accounts", systemImage: "person.2") }
             SettingsTab {
+                SessionsLayoutSection()
                 todaysSessions
                 waitingOnYou
                 PauseSettingsSection(pause: model.pause)
@@ -316,5 +317,28 @@ private struct CursorSection: View {
     private func commit() {
         guard draft != model.cursorApiKey else { return }
         model.cursorApiKey = draft
+    }
+}
+
+/// Settings ▸ Sessions ▸ Layout: the three session sections as one list, as
+/// tabs, or apart (SessionBoardView). The GNOME preference is the same.
+private struct SessionsLayoutSection: View {
+    @AppStorage("sessionsLayout") private var layout = SessionsLayout.default.rawValue
+
+    var body: some View {
+        Section("Layout") {
+            Picker("Session sections", selection: $layout) {
+                Text("One merged list").tag(SessionsLayout.merged.rawValue)
+                Text("Tabs").tag(SessionsLayout.tabs.rawValue)
+                Text("Separate sections").tag(SessionsLayout.separate.rawValue)
+            }
+            Text(
+                "Waiting on you, Pause sessions and Today's sessions as one Sessions list "
+                    + "(waiting first, then running, then the ones that ended today), as "
+                    + "Waiting / Live / Today tabs, or as three sections. Each one's own "
+                    + "switch below still decides what is read."
+            )
+            .font(.footnote).foregroundColor(.secondary)
+        }
     }
 }

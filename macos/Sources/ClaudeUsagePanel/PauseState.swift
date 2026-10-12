@@ -80,7 +80,9 @@ final class PauseState: ObservableObject {
     func pauseAll() { send(["session", "pause", "--all"]) }
 
     /// By session id, never by name: two clones of one repo share a basename.
-    func pause(_ row: PausePanelRow) { send(["session", "pause", row.sessionId]) }
+    func pause(_ row: PausePanelRow) { pause(sessionId: row.sessionId) }
+
+    func pause(sessionId: String) { send(["session", "pause", sessionId]) }
 
     /// Running sessions get the resume protocol; closed ones with a pending
     /// checkpoint reopen in a terminal (the CLI's `session open` path).

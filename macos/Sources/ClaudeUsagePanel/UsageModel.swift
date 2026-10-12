@@ -422,6 +422,16 @@ final class UsageModel: ObservableObject {
         WaitingStore.focus(row)
     }
 
+    /// Raise any running session's terminal (the session board).
+    func focusSession(pid: Int) {
+        WaitingStore.focusSession(pid: pid)
+    }
+
+    /// Resume one of today's sessions by id (the session board's ended rows).
+    func resume(sessionId: String) {
+        if let s = sessions.first(where: { $0.sessionId == sessionId }) { resume(s) }
+    }
+
     private func refreshCursor() async {
         guard cursorEnabled, !cursorApiKey.isEmpty else {
             cursorSummary = nil

@@ -90,7 +90,21 @@ enum WaitingStore {
             Shell.launch(cli, ["waiting", "focus", String(row.pid)])
             return
         }
-        if let argv = Waiting.focusArgv(Waiting.focusPlan(window: nil, tab: nil, pid: row.pid)),
+        focusByPid(row.pid)
+    }
+
+    /// Any running session, waiting or not (the session board): by pid, the
+    /// way the GNOME board does it.
+    static func focusSession(pid: Int) {
+        if let cli {
+            Shell.launch(cli, ["session", "focus", String(pid)])
+            return
+        }
+        focusByPid(pid)
+    }
+
+    private static func focusByPid(_ pid: Int) {
+        if let argv = Waiting.focusArgv(Waiting.focusPlan(window: nil, tab: nil, pid: pid)),
             let exe = argv.first
         {
             Shell.launch(exe, Array(argv.dropFirst()))

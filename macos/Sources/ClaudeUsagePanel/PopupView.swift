@@ -107,6 +107,7 @@ private struct CardView: View {
 
 struct PopupView: View {
     @ObservedObject var model: UsageModel
+    @AppStorage("sessionsLayout") private var sessionsLayout = SessionsLayout.default.rawValue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -212,16 +213,26 @@ struct PopupView: View {
                 Text(u.summary).font(.system(size: 11)).foregroundColor(.cuCritical)
             }
 
-            if !model.waiting.isEmpty {
-                WaitingSectionView(model: model)
-            }
+            // One Sessions board, tabs, or the three sections apart
+            // (Settings ▸ Sessions ▸ Layout).
+            if SessionsLayout.of(sessionsLayout) != .separate {
+                if SessionBoardView.visible(model: model, layout: SessionsLayout.of(sessionsLayout))
+                {
+                    SessionBoardView(
+                        model: model, pause: model.pause, layout: SessionsLayout.of(sessionsLayout))
+                }
+            } else {
+                if !model.waiting.isEmpty {
+                    WaitingSectionView(model: model)
+                }
 
-            if model.pause.enabled {
-                PauseSectionView(pause: model.pause)
-            }
+                if model.pause.enabled {
+                    PauseSectionView(pause: model.pause)
+                }
 
-            if model.showSessions && !model.sessions.isEmpty {
-                SessionsSectionView(model: model)
+                if model.showSessions && !model.sessions.isEmpty {
+                    SessionsSectionView(model: model)
+                }
             }
 
             if model.cursorEnabled {
