@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-10-12
+
 ### Added
 
 - **One Sessions section, or tabs.** "Waiting on you", "Pause / resume" and
