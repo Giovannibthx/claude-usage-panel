@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-10-12
+
 ### Fixed
 
 - **`install.sh macos` now replaces the running app.** It quit the app by its
