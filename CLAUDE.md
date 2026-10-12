@@ -275,7 +275,7 @@ Swift twin together, and keep the fixture matching.
 
 - **`claude-usage-panel@fschmutz.github.io/lib/pure.js`** - GNOME pure logic,
   a barrel over `lib/pure/{usage,pace,cursor,warehouse,events,poll,pings,
- sessions,accounts,notices,codex,snapshots,layout,waiting,pause}.js` (`layout.js`, the dropdown
+ sessions,accounts,notices,codex,snapshots,layout,waiting,pause,board}.js` (`layout.js`, the dropdown
   geometry, is GNOME-only: the macOS popover sizes itself). No `gi`/GJS
   imports anywhere under `pure/`, so it all runs under plain `node` for tests
   and in the Node clients. This is the reference implementation: the GNOME
@@ -285,7 +285,7 @@ Swift twin together, and keep the fixture matching.
  (`Model.swift`, `CursorModel.swift`, `Accounts.swift`, `Notices.swift`,
  `Codex.swift`, `Warehouse.swift`,
  `EventHooks.swift`, `Sessions.swift`, `SessionPing.swift`, `WindowPlanner.swift`,
- `Snapshots.swift`, `Waiting.swift`, `Pause.swift`, `ShellQuote.swift`, `DataProvenance.swift`,
+ `Snapshots.swift`, `Waiting.swift`, `Pause.swift`, `SessionBoard.swift`, `ShellQuote.swift`, `DataProvenance.swift`,
  `HttpFailure.swift`, `UpdateStatus.swift`, `ReleaseTags.swift`,
  `NotifyScript.swift`, `Countdown.swift` (`ResetCountdown`, `Sparkline`),
  `PlanLabel.swift`).

@@ -370,3 +370,30 @@
     color: #7c766b;
     font-size: 11px;
 }
+
+/* ---- the session board: the three session sections merged or tabbed ---- */
+.cu-board {
+    spacing: 3px;
+    padding: 8px 8px 4px 8px;
+}
+.cu-board-head,
+.cu-board-tabs {
+    spacing: 6px;
+}
+.cu-board-tab {
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: #9a948a;
+}
+.cu-board-tab:hover,
+.cu-board-tab:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.cu-board-tab.cu-active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.14);
+}
+.cu-board-waiting { color: #e0a458; }
+.cu-light .cu-board-tab { color: #555; }
+.cu-light .cu-board-tab.cu-active { color: #1a1a1a; background-color: rgba(0, 0, 0, 0.1); }

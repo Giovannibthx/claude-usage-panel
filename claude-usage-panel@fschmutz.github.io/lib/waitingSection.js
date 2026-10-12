@@ -24,7 +24,8 @@ export class WaitingController {
      * @param {PopupMenu.PopupMenu} deps.menu
      * @param {(title: string, body: string) => void} deps.notify
      * @param {() => boolean} deps.isDestroyed
-     * @param {(n: number) => void} [deps.setBadge]
+     * @param {(n: number) => void} [deps.setBadge]  standalone refresh() only;
+     *   in the dropdown the session group sets the badge
      */
     constructor({settings, menu, notify, isDestroyed, setBadge}) {
         this._settings = settings;
@@ -46,33 +47,36 @@ export class WaitingController {
         this._scan = 0;
     }
 
-    async refresh() {
-        // A poll can start while the last scan is still reading (the poll
-        // times sections out): only the newest scan may paint.
-        const scan = ++this._scan;
-        // Off (the default): nothing is read, no badge. A scan still in
-        // flight is dropped by the generation check below.
-        if (!this._settings.get_boolean('waiting-enabled')) {
-            this._setBadge(0);
-            this._render([]);
-            return;
-        }
-        let rows = [];
+    /** The waiting rows, or null when the section is off (then nothing is
+     *  read). Never draws. */
+    async read() {
+        if (!this._settings.get_boolean('waiting-enabled'))
+            return null;
         try {
-            rows = await listWaiting();
+            return await listWaiting();
         } catch (e) {
             logError(e, 'claude-usage-panel: waiting scan failed');
+            return [];
         }
-        if (scan !== this._scan || this._isDestroyed())
-            return;
-        this._setBadge(rows.length);
-        this._render(rows);
     }
 
-    _render(rows) {
+    /** Read, then draw this section and the badge: the section on its own. */
+    async refresh() {
+        // A poll can start while the last scan is still reading: only the
+        // newest scan may paint.
+        const scan = ++this._scan;
+        const rows = await this.read();
+        if (scan !== this._scan || this._isDestroyed())
+            return;
+        this._setBadge(rows?.length ?? 0);
+        this.render(rows);
+    }
+
+    /** Draw `rows` (read()'s result); null or empty hides the section. */
+    render(rows) {
         this._rows.destroy_all_children();
-        this._item.visible = rows.length > 0;
-        if (!rows.length)
+        this._item.visible = Boolean(rows?.length);
+        if (!rows?.length)
             return;
         this._title.text = _('Waiting on you');
         for (const row of rows) {

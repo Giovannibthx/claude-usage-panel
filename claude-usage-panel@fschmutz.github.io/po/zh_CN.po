@@ -20,72 +20,72 @@ msgstr ""
 msgid "Extra usage"
 msgstr "额外用量"
 
-#: extension.js:344
+#: extension.js:306
 #, javascript-format
 msgid "%s - retrying, showing the last reading"
 msgstr "%s - 正在重试，显示上次读数"
 
-#: extension.js:381
+#: extension.js:343
 #, javascript-format
 msgid "Updated %s"
 msgstr "已更新 %s"
 
-#: extension.js:416
+#: extension.js:380
 msgid "Session cost: computing…"
 msgstr "会话费用：计算中…"
 
-#: extension.js:421
+#: extension.js:385
 #, javascript-format
 msgid "Session cost: $%s · %s tokens (est.)"
 msgstr "会话费用：$%s · %s 个 token（估算）"
 
-#: extension.js:423
+#: extension.js:387
 msgid "Session cost: unavailable (install ccusage)"
 msgstr "会话费用：不可用（请安装 ccusage）"
 
-#: extension.js:453
+#: extension.js:417
 #, javascript-format
 msgid "%s (%d%% of the cap)"
 msgstr "%s（上限的 %d%%）"
 
-#: extension.js:470
+#: extension.js:434
 #, javascript-format
 msgid "last %s"
 msgstr "上次 %s"
 
-#: extension.js:470 prefs/pings.js:96
+#: extension.js:434 prefs/pings.js:96
 msgid "never"
 msgstr "从未"
 
-#: extension.js:474
+#: extension.js:438
 #, javascript-format
 msgid "next %s"
 msgstr "下次 %s"
 
-#: extension.js:476
+#: extension.js:440
 #, javascript-format
 msgid "Session pings: %s"
 msgstr "会话 ping：%s"
 
-#: extension.js:488 extension.js:492 lib/accountsSection.js:535
-#: lib/headerBar.js:42 lib/pauseSection.js:188 lib/pauseSection.js:198
-#: lib/sessionsSection.js:159 lib/sessionsSection.js:169
-#: lib/waitingSection.js:117 lib/waitingSection.js:124
-#: lib/waitingSection.js:132
+#: extension.js:452 extension.js:456 lib/accountsSection.js:535
+#: lib/boardSection.js:212 lib/boardSection.js:218 lib/headerBar.js:42
+#: lib/pauseSection.js:211 lib/pauseSection.js:222 lib/sessionsSection.js:173
+#: lib/sessionsSection.js:183 lib/waitingSection.js:121
+#: lib/waitingSection.js:128 lib/waitingSection.js:136
 msgid "Claude usage"
 msgstr "Claude 用量"
 
-#: extension.js:489
+#: extension.js:453
 #, javascript-format
 msgid "%s reached %d%%"
 msgstr "%s 已达到 %d%%"
 
-#: extension.js:493
+#: extension.js:457
 #, javascript-format
 msgid "%s is on pace to run out before it resets"
 msgstr "按当前速度，%s 将在重置前用尽"
 
-#: extension.js:617
+#: extension.js:581
 msgid "Claude ?"
 msgstr "Claude ?"
 
@@ -216,6 +216,91 @@ msgstr[0] " - %d 个运行中的会话在重启前仍使用旧登录"
 msgid "now on %s"
 msgstr "已切换到 %s"
 
+#: lib/boardSection.js:32 lib/waitingSection.js:108
+msgid "permission"
+msgstr "权限"
+
+#: lib/boardSection.js:33 lib/waitingSection.js:110
+msgid "idle"
+msgstr "空闲"
+
+#: lib/boardSection.js:33 lib/waitingSection.js:111
+msgid "question"
+msgstr "提问"
+
+#: lib/boardSection.js:34
+msgid "waiting"
+msgstr "等待中"
+
+#: lib/boardSection.js:37
+msgid "running"
+msgstr "运行中"
+
+#: lib/boardSection.js:65 prefs.js:39
+msgid "Sessions"
+msgstr "会话"
+
+#: lib/boardSection.js:69 lib/pauseSection.js:106
+msgid "Pause all"
+msgstr "全部暂停"
+
+#: lib/boardSection.js:70 lib/pauseSection.js:107
+msgid "Resume all"
+msgstr "全部恢复"
+
+#: lib/boardSection.js:116
+msgid "est., still indexing"
+msgstr "估算，仍在索引"
+
+#: lib/boardSection.js:116 lib/codexSection.js:53
+msgid "est."
+msgstr "估算"
+
+#: lib/boardSection.js:118
+#, javascript-format
+msgid "%d waiting"
+msgstr "%d 个等待中"
+
+#: lib/boardSection.js:119
+#, javascript-format
+msgid "%d live"
+msgstr "%d 个运行中"
+
+#: lib/boardSection.js:120
+#, javascript-format
+msgid "%d today"
+msgstr "今天 %d 个"
+
+#: lib/boardSection.js:126
+msgid "Waiting"
+msgstr "等待中"
+
+#: lib/boardSection.js:126
+msgid "Live"
+msgstr "运行中"
+
+#: lib/boardSection.js:126
+msgid "Today"
+msgstr "今天"
+
+#: lib/boardSection.js:145
+#, javascript-format
+msgid "%d ended today"
+msgstr "今天已结束 %d 个"
+
+#: lib/boardSection.js:195 lib/pauseSection.js:190
+msgid "Pause"
+msgstr "暂停"
+
+#: lib/boardSection.js:212
+msgid "Install claudectl (./install.sh cli) to jump to a session."
+msgstr "安装 claudectl（./install.sh cli）以跳转到会话。"
+
+#: lib/boardSection.js:219 lib/waitingSection.js:122 lib/waitingSection.js:136
+#, javascript-format
+msgid "Could not focus %s"
+msgstr "无法聚焦 %s"
+
 #: lib/claudeUsage.js:41
 msgid "No Claude credentials found. Sign in with Claude Code."
 msgstr "未找到 Claude 凭据。请使用 Claude Code 登录。"
@@ -239,10 +324,6 @@ msgstr "最新记录的 Codex 读数过旧，已无参考意义。"
 #: lib/codexSection.js:46
 msgid "OpenAI Codex"
 msgstr "OpenAI Codex"
-
-#: lib/codexSection.js:53
-msgid "est."
-msgstr "估算"
 
 #: lib/codexSection.js:98
 #, javascript-format
@@ -424,32 +505,20 @@ msgstr "%d 个不安全"
 msgid "%d in progress"
 msgstr "%d 个进行中"
 
-#: lib/pauseSection.js:97
+#: lib/pauseSection.js:101
 msgid "Pause / resume"
 msgstr "暂停 / 恢复"
 
-#: lib/pauseSection.js:102
-msgid "Pause all"
-msgstr "全部暂停"
-
-#: lib/pauseSection.js:103
-msgid "Resume all"
-msgstr "全部恢复"
-
-#: lib/pauseSection.js:169
-msgid "Pause"
-msgstr "暂停"
-
-#: lib/pauseSection.js:189
+#: lib/pauseSection.js:212
 msgid ""
 "Install claudectl and the pause hooks (./install.sh pause) to pause sessions."
 msgstr "安装 claudectl 和暂停钩子（./install.sh pause）后即可暂停会话。"
 
-#: lib/pauseSection.js:199
+#: lib/pauseSection.js:223
 msgid "Could not resume the sessions"
 msgstr "无法恢复会话"
 
-#: lib/pauseSection.js:199
+#: lib/pauseSection.js:223
 msgid "Could not pause the sessions"
 msgstr "无法暂停会话"
 
@@ -499,23 +568,23 @@ msgstr "未找到 session-ping.sh - 请用 ./install.sh gnome 重新安装。"
 msgid "Could not write the systemd units: %s"
 msgstr "无法写入 systemd 单元：%s"
 
-#: lib/sessionsSection.js:46 prefs/sessions.js:16
+#: lib/sessionsSection.js:51 prefs/sessions.js:17
 msgid "Today’s sessions"
 msgstr "今天的会话"
 
-#: lib/sessionsSection.js:98
+#: lib/sessionsSection.js:111
 msgid "Today’s sessions (est., still indexing)"
 msgstr "今天的会话（估算，仍在索引）"
 
-#: lib/sessionsSection.js:99
+#: lib/sessionsSection.js:112
 msgid "Today’s sessions (est.)"
 msgstr "今天的会话（估算）"
 
-#: lib/sessionsSection.js:160
+#: lib/sessionsSection.js:174
 msgid "No terminal found - set one in the extension preferences."
 msgstr "未找到终端 - 请在扩展设置中指定一个。"
 
-#: lib/sessionsSection.js:169
+#: lib/sessionsSection.js:183
 #, javascript-format
 msgid "Could not open %s"
 msgstr "无法打开 %s"
@@ -528,28 +597,11 @@ msgstr "窗口已重置 - 正在等待新窗口的第一个读数"
 msgid "the endpoint reported no figure for this limit"
 msgstr "该端点未提供此限额的数值"
 
-#: lib/waitingSection.js:39 lib/waitingSection.js:77
+#: lib/waitingSection.js:40 lib/waitingSection.js:81
 msgid "Waiting on you"
 msgstr "正在等你"
 
-#: lib/waitingSection.js:104
-msgid "permission"
-msgstr "权限"
-
-#: lib/waitingSection.js:106
-msgid "idle"
-msgstr "空闲"
-
-#: lib/waitingSection.js:107
-msgid "question"
-msgstr "提问"
-
-#: lib/waitingSection.js:118 lib/waitingSection.js:132
-#, javascript-format
-msgid "Could not focus %s"
-msgstr "无法聚焦 %s"
-
-#: lib/waitingSection.js:125
+#: lib/waitingSection.js:129
 msgid "Install claudectl (./install.sh cli) to jump to a waiting session."
 msgstr "安装 claudectl（./install.sh cli）以跳转到等待中的会话。"
 
@@ -852,10 +904,6 @@ msgstr ""
 msgid "General"
 msgstr "常规"
 
-#: prefs.js:39
-msgid "Sessions"
-msgstr "会话"
-
 #: prefs.js:44
 msgid "Integrations"
 msgstr "集成"
@@ -951,7 +999,7 @@ msgstr "尚无有效时间"
 msgid "Ping %d"
 msgstr "Ping %d"
 
-#: prefs/sessions.js:17
+#: prefs/sessions.js:18
 msgid ""
 "List the sessions that spent the most tokens today, biggest first, and "
 "resume one in a terminal with a click. Read from the local transcripts in "
@@ -960,19 +1008,39 @@ msgstr ""
 "按今天消耗 token 最多的顺序列出会话，点击即可在终端中恢复。读取 "
 "$CLAUDE_CONFIG_DIR/projects（默认为 ~/.claude/projects）中的本地记录。"
 
-#: prefs/sessions.js:20
+#: prefs/sessions.js:21
 msgid "Show today’s sessions"
 msgstr "显示今天的会话"
 
-#: prefs/sessions.js:21
+#: prefs/sessions.js:22
 msgid "Adds up to 5 resume links to the dropdown"
 msgstr "在下拉菜单中添加最多 5 个恢复链接"
 
-#: prefs/sessions.js:26
+#: prefs/sessions.js:29
+msgid "Session sections"
+msgstr "会话区块"
+
+#: prefs/sessions.js:30
+msgid "Waiting on you, Pause / resume and Today’s sessions"
+msgstr "正在等你、暂停 / 恢复和今天的会话"
+
+#: prefs/sessions.js:31
+msgid "One merged list"
+msgstr "合并为一个列表"
+
+#: prefs/sessions.js:31
+msgid "Tabs"
+msgstr "标签页"
+
+#: prefs/sessions.js:31
+msgid "Separate sections"
+msgstr "分开显示"
+
+#: prefs/sessions.js:38
 msgid "Terminal"
 msgstr "终端"
 
-#: prefs/sessions.js:33
+#: prefs/sessions.js:45
 msgid ""
 "Leave empty for the desktop default terminal ($TERMINAL first); without one: "
 "ghostty, kitty, wezterm, alacritty, foot, gnome-terminal, konsole, tilix, "
@@ -982,11 +1050,11 @@ msgstr ""
 "wezterm、alacritty、foot、gnome-terminal、konsole、tilix、xfce4-terminal、"
 "xterm。claudectl session open 也使用此设置。"
 
-#: prefs/sessions.js:44
+#: prefs/sessions.js:56
 msgid "Saved sessions"
 msgstr "已保存的会话"
 
-#: prefs/sessions.js:45
+#: prefs/sessions.js:57
 msgid ""
 "claudectl session keeps the running Claude Code sessions in snapshots and "
 "reopens them as tabs of one terminal window."
@@ -994,31 +1062,31 @@ msgstr ""
 "claudectl session 将正在运行的 Claude Code 会话保存为快照，并在同一个终端窗口"
 "中以标签页重新打开。"
 
-#: prefs/sessions.js:47
+#: prefs/sessions.js:59
 msgid "Autosave"
 msgstr "自动保存"
 
-#: prefs/sessions.js:49
+#: prefs/sessions.js:61
 msgid "Newest snapshot"
 msgstr "最新快照"
 
-#: prefs/sessions.js:50
+#: prefs/sessions.js:62
 msgid "Reopen"
 msgstr "重新打开"
 
-#: prefs/sessions.js:58
+#: prefs/sessions.js:70
 msgid "claudectl is not installed - run ./install.sh cli"
 msgstr "未安装 claudectl - 请运行 ./install.sh cli"
 
-#: prefs/sessions.js:60
+#: prefs/sessions.js:72
 msgid "None yet - run claudectl session save, or wait for the autosave"
 msgstr "暂无 - 请运行 claudectl session save，或等待自动保存"
 
-#: prefs/sessions.js:71
+#: prefs/sessions.js:83
 msgid "Every 30 minutes"
 msgstr "每 30 分钟"
 
-#: prefs/sessions.js:71
+#: prefs/sessions.js:83
 msgid "Not scheduled - run ./install.sh cli"
 msgstr "未计划 - 请运行 ./install.sh cli"
 

@@ -81,8 +81,12 @@ export class PauseController {
      * @param {PopupMenu.PopupMenu} deps.menu
      * @param {(title: string, body: string) => void} deps.notify
      * @param {() => boolean} deps.isDestroyed
+     * @param {() => void} [deps.requestRefresh]  re-read and redraw after an
+     *   action or while following a request; the session group passes its
+     *   own, standalone it is refresh()
      */
-    constructor({settings, menu, notify, isDestroyed}) {
+    constructor({settings, menu, notify, isDestroyed, requestRefresh}) {
+        this._requestRefresh = requestRefresh ?? (() => this.refresh());
         this._settings = settings;
         this._notify = notify;
         this._isDestroyed = isDestroyed;
@@ -99,8 +103,8 @@ export class PauseController {
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         }));
-        this._pauseAll = this._actionButton(_('Pause all'), () => this._act('pause-all'));
-        this._resumeAll = this._actionButton(_('Resume all'), () => this._act('resume-all'));
+        this._pauseAll = this._actionButton(_('Pause all'), () => this.act('pause-all'));
+        this._resumeAll = this._actionButton(_('Resume all'), () => this.act('resume-all'));
         head.add_child(this._pauseAll);
         head.add_child(this._resumeAll);
         this._summary = new St.Label({text: '', style_class: 'cu-session-meta'});
@@ -120,31 +124,48 @@ export class PauseController {
         return button;
     }
 
-    async refresh() {
+    /** Whether an action is running (its buttons grey out). */
+    get busy() {
+        return this._busy;
+    }
+
+    /** The store, or null when the section is off (then nothing is read).
+     *  Arms the follow-up while a fresh request is still being answered.
+     *  Never draws. */
+    async read() {
         this._cancelFollow();
-        // A poll and a follow-up can overlap: only the newest scan paints.
-        const scan = ++this._scan;
-        // Off (the default): nothing is read.
-        if (!this._settings.get_boolean('pause-enabled')) {
-            this._item.visible = false;
-            return;
-        }
+        if (this._isDestroyed() || !this._settings.get_boolean('pause-enabled'))
+            return null;
         let status = {request: null, rows: [], summary: null};
         try {
             status = await readPauseStatus();
         } catch (e) {
             logError(e, 'claude-usage-panel: pause scan failed');
         }
-        if (scan !== this._scan || this._isDestroyed())
-            return;
-        this._render(status);
         const {request, summary} = status;
-        if (request && !summary.done && Date.now() - request.at < FOLLOW_MS)
+        if (!this._isDestroyed() && request && !summary.done && Date.now() - request.at < FOLLOW_MS)
             this._scheduleFollow();
+        return status;
     }
 
-    _render({request, rows, summary}) {
+    /** Read, then draw this section: the section on its own. */
+    async refresh() {
+        // A poll and a follow-up can overlap: only the newest scan paints.
+        const scan = ++this._scan;
+        const status = await this.read();
+        if (scan !== this._scan || this._isDestroyed())
+            return;
+        this.render(status);
+    }
+
+    /** Draw read()'s result; null (off) hides the section. */
+    render(status) {
         this._rows.destroy_all_children();
+        if (!status) {
+            this._item.visible = false;
+            return;
+        }
+        const {request, rows, summary} = status;
         this._item.visible = rows.length > 0 || Boolean(request);
         this._summary.text = pauseSummaryText(request, summary);
         this._summary.visible = Boolean(request);
@@ -166,7 +187,7 @@ export class PauseController {
                 })));
             }
             if (row.pid !== null) {
-                const button = this._actionButton(_('Pause'), () => this._act('pause-one', row));
+                const button = this._actionButton(_('Pause'), () => this.act('pause-one', row));
                 button.reactive = !this._busy;
                 line.add_child(button);
             }
@@ -180,13 +201,16 @@ export class PauseController {
         this._resumeAll.reactive = !busy;
     }
 
-    async _act(action, row = null) {
+    /** Run a panel action through claudectl, then re-read the store. The
+     *  board's buttons call this too. */
+    async act(action, row = null) {
         if (this._busy)
             return;
         const cli = claudectlPath();
         if (!cli) {
             this._notify(_('Claude usage'),
                 _('Install claudectl and the pause hooks (./install.sh pause) to pause sessions.'));
+            this._requestRefresh();
             return;
         }
         this._setBusy(true);
@@ -198,13 +222,15 @@ export class PauseController {
             this._notify(_('Claude usage'), lastOutputLine(stdout, stderr) ||
                 (action === 'resume-all' ? _('Could not resume the sessions') : _('Could not pause the sessions')));
         }
-        await this.refresh();
+        await this._requestRefresh();
     }
 
     _scheduleFollow() {
+        // two overlapping reads must never leave an orphaned timer behind
+        this._cancelFollow();
         this._followId = GLib.timeout_add_seconds(GLib.PRIORITY_LOW, FOLLOW_SECONDS, () => {
             this._followId = 0;
-            this.refresh();
+            this._requestRefresh();
             return GLib.SOURCE_REMOVE;
         });
     }

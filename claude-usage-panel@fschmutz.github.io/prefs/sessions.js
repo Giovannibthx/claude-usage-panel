@@ -10,6 +10,7 @@ import Gtk from 'gi://Gtk';
 import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {run} from '../lib/proc.js';
 import {claudectlPath, readSnapshots} from '../lib/snapshots.js';
+import {DEFAULT_SESSIONS_LAYOUT, SESSIONS_LAYOUTS, sessionsLayout} from '../lib/pure.js';
 
 export function buildSessions(prefs, settings) {
     const sessions = new Adw.PreferencesGroup({
@@ -22,6 +23,17 @@ export function buildSessions(prefs, settings) {
     });
     settings.bind('show-sessions', sessionsRow, 'active', 0);
     sessions.add(sessionsRow);
+
+    // One Sessions list, tabs, or the three sections apart (lib/pure/board.js).
+    const layoutRow = new Adw.ComboRow({
+        title: _('Session sections'),
+        subtitle: _('Waiting on you, Pause / resume and Today’s sessions'),
+        model: Gtk.StringList.new([_('One merged list'), _('Tabs'), _('Separate sections')]),
+    });
+    layoutRow.set_selected(Math.max(0, SESSIONS_LAYOUTS.indexOf(sessionsLayout(settings.get_string('sessions-layout')))));
+    layoutRow.connect('notify::selected', row =>
+        settings.set_string('sessions-layout', SESSIONS_LAYOUTS[row.get_selected()] ?? DEFAULT_SESSIONS_LAYOUT));
+    sessions.add(layoutRow);
 
     const terminalRow = new Adw.EntryRow({title: _('Terminal')});
     terminalRow.set_show_apply_button(true);

@@ -1,7 +1,8 @@
 // "Today's sessions" in the dropdown: the work the plan was actually spent on,
 // biggest spender first, each row a click away from being resumed in a
 // terminal. Owns its menu item, the catch-up timer while the index is still
-// warming, and the terminal launch. extension.js only calls refresh().
+// warming, and the terminal launch. The session group (lib/sessionGroup.js) calls
+// read() and render(); refresh() is the section on its own.
 
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
@@ -30,8 +31,12 @@ export class SessionsController {
      *   appended at construction, so build in menu order
      * @param {(title: string, body: string) => void} deps.notify
      * @param {() => boolean} deps.isDestroyed true once the button is gone
+     * @param {() => void} [deps.requestRefresh]  re-read and redraw while the
+     *   index catches up; the session group passes its own, standalone it is
+     *   refresh()
      */
-    constructor({settings, menu, notify, isDestroyed}) {
+    constructor({settings, menu, notify, isDestroyed, requestRefresh}) {
+        this._requestRefresh = requestRefresh ?? (() => this.refresh());
         this._settings = settings;
         this._menu = menu;
         this._notify = notify;
@@ -52,30 +57,38 @@ export class SessionsController {
         this._item.visible = false;
     }
 
-    async refresh() {
+    /** Today's top sessions {sessions, pending}, or null when the section
+     *  is off or the scan failed. Arms the catch-up while the index is still
+     *  warming. Never draws. */
+    async read() {
         this._cancelCatchup();
-        if (!this._settings.get_boolean('show-sessions')) {
-            this._item.visible = false;
-            return;
-        }
+        if (this._isDestroyed() || !this._settings.get_boolean('show-sessions'))
+            return null;
         try {
             const {sessions, pending} = await refreshSessions({limit: SESSION_ROWS});
-            if (this._isDestroyed())
-                return;
-            this._render(sessions, pending);
-            if (pending)
+            if (pending && !this._isDestroyed())
                 this._scheduleCatchup();
+            return {sessions, pending};
         } catch (e) {
             logError(e, 'claude-usage-panel: session scan failed');
-            this._item.visible = false;
+            return null;
         }
     }
 
+    /** Read, then draw this section: the section on its own. */
+    async refresh() {
+        const data = await this.read();
+        if (!this._isDestroyed())
+            this.render(data);
+    }
+
     _scheduleCatchup() {
+        // two overlapping reads must never leave an orphaned timer behind
+        this._cancelCatchup();
         this._catchupId = GLib.timeout_add_seconds(
             GLib.PRIORITY_LOW, SESSION_CATCHUP_SECONDS, () => {
                 this._catchupId = 0;
-                this.refresh();
+                this._requestRefresh();
                 return GLib.SOURCE_REMOVE;
             });
     }
@@ -87,8 +100,10 @@ export class SessionsController {
         }
     }
 
-    _render(sessions, pending) {
+    /** Draw read()'s result; null (off, failed) or no session hides it. */
+    render(data) {
         this._rows.destroy_all_children();
+        const {sessions = [], pending = false} = data ?? {};
         this._item.visible = sessions.length > 0;
         if (!sessions.length)
             return;
@@ -118,7 +133,7 @@ export class SessionsController {
                 can_focus: true,
                 child: row,
             });
-            button.connect('clicked', () => this._open(session));
+            button.connect('clicked', () => this.open(session));
             this._rows.add_child(button);
         }
     }
@@ -153,7 +168,8 @@ export class SessionsController {
         }, installed);
     }
 
-    _open(session) {
+    /** Resume `session` in a terminal. The board's ended rows call this too. */
+    open(session) {
         const bin = this._detectTerminal();
         if (!bin) {
             this._notify(_('Claude usage'),

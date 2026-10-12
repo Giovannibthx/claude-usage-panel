@@ -72,6 +72,22 @@
         installs (and that turns this on).
       </description>
     </key>
+    <key name="sessions-layout" type="s">
+      <default>'merged'</default>
+      <summary>How the session sections are laid out</summary>
+      <description>
+        'merged' joins "Waiting on you", "Pause / resume" and "Today's
+        sessions" into one Sessions list, one row per session (waiting first,
+        then running, then the ones that ended today). 'tabs' shows the same
+        rows under Waiting / Live / Today tabs. 'separate' keeps the three
+        sections apart. Each section's own switch still decides what is read.
+      </description>
+      <choices>
+        <choice value="merged"/>
+        <choice value="tabs"/>
+        <choice value="separate"/>
+      </choices>
+    </key>
     <key name="cursor-enabled" type="b">
       <default>false</default>
       <summary>Show Cursor usage</summary>

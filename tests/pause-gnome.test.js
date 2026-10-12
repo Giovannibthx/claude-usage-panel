@@ -261,7 +261,7 @@ test('a click runs the installed claudectl by pid; a refusal is notified with it
     const rec = install({}, {cliResult: {ok: false, stdout: '', stderr: 'boom\nno running Claude Code session to pause\n'}});
     const notes = [];
     const s = await section(ON, notes);
-    await s._act('pause-one', {pid: 22, name: 'repo'});
+    await s.act('pause-one', {pid: 22, name: 'repo'});
     assert.deepEqual(rec.spawned, [[CLI, 'session', 'pause', '22', '--no-wait', '--from=gnome']]);
     assert.deepEqual(notes, ['no running Claude Code session to pause']);
     assert.equal(s._busy, false, 'the buttons come back');
@@ -273,7 +273,16 @@ test('no claudectl: the click says how to install it and spawns nothing', async 
     stub.overrides['gi://GLib'].file_test = () => false;
     const notes = [];
     const s = await section(ON, notes);
-    await s._act('pause-all');
+    await s.act('pause-all');
     assert.deepEqual(rec.spawned, []);
     assert.match(notes[0], /\.\/install\.sh pause/);
+});
+
+test('two overlapping reads arm one follow-up: the first timer is removed, never orphaned', async t => {
+    t.after(() => { stub.overrides = {}; });
+    const rec = install(world(Date.now()));
+    const s = await section(ON);
+    await Promise.all([s.read(), s.read()]);
+    assert.equal(rec.timers.length, 2, 'each read armed one');
+    assert.deepEqual(rec.removed, [1], 'the first was cancelled when the second armed');
 });

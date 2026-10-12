@@ -17,3 +17,4 @@ export * from './pure/layout.js';
 export * from './pure/snapshots.js';
 export * from './pure/waiting.js';
 export * from './pure/pause.js';
+export * from './pure/board.js';

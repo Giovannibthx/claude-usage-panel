@@ -114,9 +114,9 @@ function spyOn(button, hang = []) {
         return hang.includes(name) ? new Promise(() => {}) : Promise.resolve();
     };
     button._refreshCost = make('cost');
-    button._waiting = {refresh: make('waiting'), destroy: () => {}};
-    button._pause = {refresh: make('pause'), destroy: () => {}};
-    button._sessions = {refresh: make('sessions'), destroy: () => {}};
+    // the session group: one read per section, each under its own deadline
+    const reads = {waiting: make('waiting'), pause: make('pause'), today: make('sessions')};
+    button._sessionGroup = {read: kind => reads[kind](), render: () => {}, destroy: () => {}};
     button._cursor = {refresh: make('cursor')};
     button._accounts = {refresh: make('accounts'), activeName: null, destroy: () => {}};
     button._codex = {refresh: make('codex')};

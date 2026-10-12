@@ -1,0 +1,589 @@
+{
+  "_comment": "The session board: Waiting on you + Pause / resume + Today's sessions joined into one row per session id, for the dropdown's merged and tabbed layouts. Pinned for lib/pure/board.js (sessionBoard, boardTab, boardDefaultTab, boardMetaParts, boardVisible, sessionsLayout) and Swift SessionBoard. One input shape in both ports: a session is live when a section saw its pid. Rows sort waiting first (oldest wait first), then live, then ended; live and ended by today's tokens, then name, then id, both in UTF-16 code-unit order (JS `<`).",
+  "layouts": [
+    {
+      "value": "merged",
+      "expected": "merged"
+    },
+    {
+      "value": "tabs",
+      "expected": "tabs"
+    },
+    {
+      "value": "separate",
+      "expected": "separate"
+    },
+    {
+      "value": "",
+      "expected": "merged"
+    },
+    {
+      "value": "grid",
+      "expected": "merged"
+    }
+  ],
+  "cases": [
+    {
+      "name": "all three sections joined by session id",
+      "input": {
+        "waiting": [
+          {
+            "sessionId": "w2",
+            "pid": 22,
+            "name": "WEB",
+            "cwd": "/w/web",
+            "reason": "idle",
+            "at": 2000,
+            "age": "1m"
+          },
+          {
+            "sessionId": "w1",
+            "pid": 11,
+            "name": "API",
+            "cwd": "/w/api",
+            "reason": "permission",
+            "at": 1000,
+            "age": "4m"
+          }
+        ],
+        "pause": [
+          {
+            "sessionId": "w1",
+            "pid": 11,
+            "name": "API",
+            "cwd": "/w/api",
+            "state": "delivered",
+            "via": "rewake",
+            "reason": null
+          },
+          {
+            "sessionId": "l1",
+            "pid": 33,
+            "name": "CONSOLE",
+            "cwd": "/w/console",
+            "state": null
+          },
+          {
+            "sessionId": "l2",
+            "pid": 44,
+            "name": "OPS",
+            "cwd": "/w/ops",
+            "state": null
+          },
+          {
+            "sessionId": "g1",
+            "pid": null,
+            "name": "OLD",
+            "cwd": "/w/old",
+            "state": "lost",
+            "via": "pretooluse",
+            "reason": null
+          }
+        ],
+        "today": [
+          {
+            "sessionId": "l2",
+            "cwd": "/w/ops",
+            "label": "ops work",
+            "tokens": 900,
+            "when": "09:10",
+            "lastMs": 500
+          },
+          {
+            "sessionId": "e1",
+            "cwd": "/w/done",
+            "label": "done thing",
+            "tokens": 400,
+            "when": "08:00",
+            "lastMs": 400
+          },
+          {
+            "sessionId": "w2",
+            "cwd": "/w/web",
+            "label": "web title",
+            "tokens": 100,
+            "when": "09:00",
+            "lastMs": 300
+          }
+        ]
+      },
+      "expected": {
+        "order": [
+          "w1",
+          "w2",
+          "l2",
+          "l1",
+          "e1",
+          "g1"
+        ],
+        "status": {
+          "w1": "waiting",
+          "w2": "waiting",
+          "l2": "live",
+          "l1": "live",
+          "e1": "ended",
+          "g1": "ended"
+        },
+        "names": {
+          "w1": "API",
+          "w2": "WEB",
+          "l2": "OPS",
+          "l1": "CONSOLE",
+          "e1": "done thing",
+          "g1": "OLD"
+        },
+        "pids": {
+          "w1": 11,
+          "w2": 22,
+          "l2": 44,
+          "l1": 33,
+          "e1": null,
+          "g1": null
+        },
+        "tokens": {
+          "l2": 900,
+          "e1": 400,
+          "w2": 100
+        },
+        "counts": {
+          "waiting": 2,
+          "live": 4,
+          "today": 3
+        },
+        "tabs": {
+          "waiting": [
+            "w1",
+            "w2"
+          ],
+          "live": [
+            "w1",
+            "w2",
+            "l2",
+            "l1"
+          ],
+          "today": [
+            "w2",
+            "l2",
+            "e1"
+          ]
+        },
+        "pause": {
+          "w1": {
+            "state": "delivered",
+            "via": "rewake",
+            "reason": null
+          },
+          "g1": {
+            "state": "lost",
+            "via": "pretooluse",
+            "reason": null
+          }
+        },
+        "meta": {
+          "w1": [
+            {
+              "kind": "waiting",
+              "reason": "permission",
+              "age": "4m"
+            },
+            {
+              "kind": "pause",
+              "state": "delivered",
+              "via": "rewake",
+              "reason": null
+            }
+          ],
+          "w2": [
+            {
+              "kind": "waiting",
+              "reason": "idle",
+              "age": "1m"
+            },
+            {
+              "kind": "today",
+              "tokens": 100,
+              "when": "09:00"
+            }
+          ],
+          "l2": [
+            {
+              "kind": "running"
+            },
+            {
+              "kind": "today",
+              "tokens": 900,
+              "when": "09:10"
+            }
+          ],
+          "l1": [
+            {
+              "kind": "running"
+            }
+          ],
+          "e1": [
+            {
+              "kind": "today",
+              "tokens": 400,
+              "when": "08:00"
+            }
+          ],
+          "g1": [
+            {
+              "kind": "pause",
+              "state": "lost",
+              "via": "pretooluse",
+              "reason": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "waiting and pause off: every today row is ended, ranked by tokens",
+      "input": {
+        "waiting": [],
+        "pause": [],
+        "today": [
+          {
+            "sessionId": "a",
+            "cwd": "/w/a",
+            "label": "alpha",
+            "tokens": 10,
+            "when": "08:00",
+            "lastMs": 1
+          },
+          {
+            "sessionId": "b",
+            "cwd": "/w/b",
+            "label": "beta",
+            "tokens": 50,
+            "when": "09:00",
+            "lastMs": 2
+          }
+        ]
+      },
+      "expected": {
+        "order": [
+          "b",
+          "a"
+        ],
+        "status": {
+          "a": "ended",
+          "b": "ended"
+        },
+        "names": {
+          "a": "alpha",
+          "b": "beta"
+        },
+        "pids": {
+          "a": null,
+          "b": null
+        },
+        "tokens": {
+          "a": 10,
+          "b": 50
+        },
+        "counts": {
+          "waiting": 0,
+          "live": 0,
+          "today": 2
+        },
+        "tabs": {
+          "waiting": [],
+          "live": [],
+          "today": [
+            "b",
+            "a"
+          ]
+        },
+        "pause": {},
+        "meta": {
+          "a": [
+            {
+              "kind": "today",
+              "tokens": 10,
+              "when": "08:00"
+            }
+          ],
+          "b": [
+            {
+              "kind": "today",
+              "tokens": 50,
+              "when": "09:00"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "ties break by name then id; a nameless row takes its id prefix; bad rows are skipped",
+      "input": {
+        "waiting": [
+          {
+            "pid": 5,
+            "name": "no id"
+          }
+        ],
+        "pause": [
+          {
+            "sessionId": "zz-1234567890",
+            "pid": 7,
+            "name": "",
+            "cwd": "",
+            "state": null
+          },
+          {
+            "sessionId": "b",
+            "pid": 8,
+            "name": "same",
+            "cwd": "",
+            "state": null
+          },
+          {
+            "sessionId": "a",
+            "pid": 9,
+            "name": "same",
+            "cwd": "",
+            "state": null
+          },
+          {
+            "sessionId": "",
+            "pid": 10,
+            "name": "empty id"
+          }
+        ],
+        "today": []
+      },
+      "expected": {
+        "order": [
+          "a",
+          "b",
+          "zz-1234567890"
+        ],
+        "status": {
+          "a": "live",
+          "b": "live",
+          "zz-1234567890": "live"
+        },
+        "names": {
+          "a": "same",
+          "b": "same",
+          "zz-1234567890": "zz-12345"
+        },
+        "pids": {
+          "a": 9,
+          "b": 8,
+          "zz-1234567890": 7
+        },
+        "tokens": {},
+        "counts": {
+          "waiting": 0,
+          "live": 3,
+          "today": 0
+        },
+        "tabs": {
+          "waiting": [],
+          "live": [
+            "a",
+            "b",
+            "zz-1234567890"
+          ],
+          "today": []
+        },
+        "pause": {},
+        "meta": {
+          "a": [
+            {
+              "kind": "running"
+            }
+          ],
+          "b": [
+            {
+              "kind": "running"
+            }
+          ],
+          "zz-1234567890": [
+            {
+              "kind": "running"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "name ties compare UTF-16 code units: an astral name sorts before one at U+FF5E",
+      "input": {
+        "waiting": [],
+        "pause": [
+          {
+            "sessionId": "x1",
+            "pid": 1,
+            "name": "～",
+            "cwd": "",
+            "state": null
+          },
+          {
+            "sessionId": "x2",
+            "pid": 2,
+            "name": "😀",
+            "cwd": "",
+            "state": "not-safe",
+            "via": "rewake",
+            "reason": "deploy running"
+          }
+        ],
+        "today": []
+      },
+      "expected": {
+        "order": [
+          "x2",
+          "x1"
+        ],
+        "status": {
+          "x1": "live",
+          "x2": "live"
+        },
+        "names": {
+          "x1": "～",
+          "x2": "😀"
+        },
+        "pids": {
+          "x1": 1,
+          "x2": 2
+        },
+        "pause": {
+          "x2": {
+            "state": "not-safe",
+            "via": "rewake",
+            "reason": "deploy running"
+          }
+        },
+        "tokens": {},
+        "counts": {
+          "waiting": 0,
+          "live": 2,
+          "today": 0
+        },
+        "tabs": {
+          "waiting": [],
+          "live": [
+            "x2",
+            "x1"
+          ],
+          "today": []
+        },
+        "meta": {
+          "x1": [
+            {
+              "kind": "running"
+            }
+          ],
+          "x2": [
+            {
+              "kind": "pause",
+              "state": "not-safe",
+              "via": "rewake",
+              "reason": "deploy running"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "defaultTab": [
+    {
+      "name": "waiting first when it has rows",
+      "counts": {
+        "waiting": 2,
+        "live": 4,
+        "today": 3
+      },
+      "remembered": null,
+      "expected": "waiting"
+    },
+    {
+      "name": "the remembered tab when it still has rows",
+      "counts": {
+        "waiting": 2,
+        "live": 4,
+        "today": 3
+      },
+      "remembered": "today",
+      "expected": "today"
+    },
+    {
+      "name": "an empty remembered tab falls to the first with rows",
+      "counts": {
+        "waiting": 0,
+        "live": 4,
+        "today": 3
+      },
+      "remembered": "waiting",
+      "expected": "live"
+    },
+    {
+      "name": "nothing anywhere keeps the remembered tab",
+      "counts": {
+        "waiting": 0,
+        "live": 0,
+        "today": 0
+      },
+      "remembered": "today",
+      "expected": "today"
+    },
+    {
+      "name": "nothing anywhere and nothing remembered opens waiting",
+      "counts": {
+        "waiting": 0,
+        "live": 0,
+        "today": 0
+      },
+      "remembered": "bogus",
+      "expected": "waiting"
+    }
+  ],
+  "visible": [
+    {
+      "name": "separate never shows",
+      "layout": "separate",
+      "rows": 2,
+      "pauseRequest": false,
+      "expected": false
+    },
+    {
+      "name": "merged with rows shows",
+      "layout": "merged",
+      "rows": 2,
+      "pauseRequest": false,
+      "expected": true
+    },
+    {
+      "name": "tabs with rows shows",
+      "layout": "tabs",
+      "rows": 1,
+      "pauseRequest": false,
+      "expected": true
+    },
+    {
+      "name": "no rows and no request hides",
+      "layout": "merged",
+      "rows": 0,
+      "pauseRequest": false,
+      "expected": false
+    },
+    {
+      "name": "a pause request alone shows",
+      "layout": "merged",
+      "rows": 0,
+      "pauseRequest": true,
+      "expected": true
+    },
+    {
+      "name": "an unknown layout reads as merged",
+      "layout": "grid",
+      "rows": 1,
+      "pauseRequest": false,
+      "expected": true
+    }
+  ]
+}
