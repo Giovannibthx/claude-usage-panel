@@ -17,6 +17,16 @@
         <choice value="session"/>
       </choices>
     </key>
+    <key name="show-model-limits" type="b">
+      <default>true</default>
+      <summary>Show per-model limits</summary>
+      <description>List per-model weekly sub-caps (Fable) as their own card and let them drive the top bar. Off hides them; their usage still counts in the all-models weekly card, and alerts still fire.</description>
+    </key>
+    <key name="compact-cards" type="b">
+      <default>false</default>
+      <summary>Compact limit cards</summary>
+      <description>Draw each limit card as its name, percentage, bar and reset countdown only: no clock caret, pace, forecast, sparkline or week-over-week line.</description>
+    </key>
     <key name="show-cost" type="b">
       <default>false</default>
       <summary>Show session cost</summary>

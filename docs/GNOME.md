@@ -50,6 +50,8 @@ gnome-extensions prefs claude-usage-panel@fschmutz.github.io
 
 - **Refresh interval** - minutes between polls (default 10).
 - **Top bar shows** - worst limit or current session.
+- **Per-model limits** - show the weekly Fable card (off hides it; alerts still fire).
+- **Compact cards** - name, percentage, bar and reset only.
 - **Limit-crossing alerts** - notify at 90% / 100%.
 - **Show session cost** - optional local [`ccusage`](https://github.com/ryoppippi/ccusage)
   cost (needs `ccusage` installed on your PATH, e.g. `npm install -g ccusage`;

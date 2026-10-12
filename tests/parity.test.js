@@ -189,6 +189,11 @@ for (const c of readingFix.panelCard) {
         assert.equal(pure.panelCard(c.cards, c.mode, readingNow)?.key ?? null, c.expected);
     });
 }
+for (const c of readingFix.shownCards) {
+    test(`shownCards - ${c.name}`, () => {
+        assert.deepEqual(pure.shownCards(c.cards, c.showModelLimits).map(card => card.key), c.expected);
+    });
+}
 
 // ── The top-bar gauge ───────────────────────────────────────────────────────────
 // The logo's arc, drawn live in both top bars. The Swift twin is PanelGaugeTests.

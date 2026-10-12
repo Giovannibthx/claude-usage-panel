@@ -6,6 +6,18 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- **Per-model limits are optional.** A setting in both panels (GNOME
+  `show-model-limits`, macOS `showModelLimits`, on by default) hides the weekly
+  Fable card from the dropdown and from the top-bar ranking. Its usage still
+  counts in the all-models weekly card, and alerts still fire. `shownCards`
+  (Swift `ShownCards`) is the one filter, pinned by
+  `tests/fixtures/reading.json`.
+- **Compact cards.** A setting in both panels (`compact-cards` /
+  `compactCards`, off by default) draws each limit card as its name,
+  percentage, bar and reset countdown only.
+
 ### Fixed
 
 - **A paused workflow resumes from its run id instead of starting over.** The

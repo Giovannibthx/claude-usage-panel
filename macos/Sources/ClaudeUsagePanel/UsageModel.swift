@@ -28,6 +28,17 @@ final class UsageModel: ObservableObject {
             Task { await refreshCost() }
         }
     }
+    /// Per-model weekly sub-caps (Fable) as their own card and in the
+    /// menu-bar ranking. Off hides them; alerts still read every card.
+    @Published var showModelLimits: Bool {
+        didSet { UserDefaults.standard.set(showModelLimits, forKey: "showModelLimits") }
+    }
+    /// Cards drawn as name, percentage, bar and reset countdown only.
+    @Published var compactCards: Bool {
+        didSet { UserDefaults.standard.set(compactCards, forKey: "compactCards") }
+    }
+    /// The cards the popup lists and the menu bar ranks (ShownCards).
+    var shownCards: [LimitCard] { ShownCards.filter(cards, showModelLimits: showModelLimits) }
     @Published var alertsEnabled: Bool {
         didSet { UserDefaults.standard.set(alertsEnabled, forKey: "alertsEnabled") }
     }
@@ -190,6 +201,8 @@ final class UsageModel: ObservableObject {
         refreshMinutes = UserDefaults.standard.object(forKey: "refreshMinutes") as? Int ?? 10
         showCost = UserDefaults.standard.bool(forKey: "showCost")
         alertsEnabled = UserDefaults.standard.object(forKey: "alertsEnabled") as? Bool ?? true
+        showModelLimits = UserDefaults.standard.object(forKey: "showModelLimits") as? Bool ?? true
+        compactCards = UserDefaults.standard.bool(forKey: "compactCards")
         eventCommand = UserDefaults.standard.string(forKey: "eventCommand") ?? ""
         cursorEnabled = UserDefaults.standard.bool(forKey: "cursorEnabled")
         codexEnabled = UserDefaults.standard.bool(forKey: "codexEnabled")
@@ -497,7 +510,7 @@ final class UsageModel: ObservableObject {
     /// The card the menu bar shows: the worst honest reading, ranked exactly
     /// like the GNOME top bar (PanelCard), so a rolled-over window's stale
     /// percentage never parks itself in the menu bar.
-    private var panelCard: LimitCard? { PanelCard.pick(cards, mode: .worst, now: Date()) }
+    private var panelCard: LimitCard? { PanelCard.pick(shownCards, mode: .worst, now: Date()) }
 
     /// The menu-bar gauge: filled to that card's reading, tinted by its
     /// severity - lifted to warning while the forecast says the limit runs

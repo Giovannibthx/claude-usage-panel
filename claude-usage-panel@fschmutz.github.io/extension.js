@@ -43,6 +43,7 @@ import {
     nextPollSeconds, nextResetMs, sameUsage, detectEvents, expandEventCommand,
     warehouseAccount, warehouseEntry, weekOverWeek, planLabel,
     formatLastPing, nextPing, compactTokens, formatClock, panelCard, panelText, popupWidth, usageReading,
+    shownCards,
 } from './lib/pure.js';
 
 // How long to let a resume or a network change settle before polling: DNS and
@@ -134,6 +135,8 @@ class ClaudeUsageButton extends PanelMenu.Button {
             'changed::refresh-interval', () => this._restartTimer(),
             'changed::show-cost', () => this.refresh(),
             'changed::panel-mode', () => this._renderPanel(),
+            'changed::show-model-limits', () => this._rerender(),
+            'changed::compact-cards', () => this._rerender(),
             'changed::cursor-enabled', () => this.refresh(),
             'changed::cursor-api-key', () => this.refresh(),
             'changed::cursor-key-stamp', () => this.refresh(),
@@ -523,9 +526,23 @@ class ClaudeUsageButton extends PanelMenu.Button {
         this._checkAlerts(cards);
     }
 
+    // The cards the dropdown lists and the top bar ranks (shownCards):
+    // per-model limits only while the user wants them.
+    _shown(cards) {
+        return shownCards(cards, this._settings.get_boolean('show-model-limits'));
+    }
+
+    _rerender() {
+        if (!this._latest?.length)
+            return;
+        this._renderCards(this._latest, Date.now());
+        this._renderPanel();
+    }
+
     _renderCards(cards, now) {
         const seen = new Set();
-        for (const card of cards) {
+        const compact = this._settings.get_boolean('compact-cards');
+        for (const card of this._shown(cards)) {
             seen.add(card.key);
             let widget = this._cards.get(card.key);
             if (!widget) {
@@ -533,6 +550,7 @@ class ClaudeUsageButton extends PanelMenu.Button {
                 this._cards.set(card.key, widget);
                 this._cardsBox.add_child(widget);
             }
+            widget.setCompact(compact);
             widget.update(card, this._history.get(card.key) ?? [], this._forecasts.get(card.key),
                 weekOverWeek(this._warehouse, card.key, now, this._warehouseAccount));
         }
@@ -553,7 +571,7 @@ class ClaudeUsageButton extends PanelMenu.Button {
         // 'worst' | 'session'; panelCard ranks on the honest reading, so a
         // just-reset window's stale 96% never parks in the top bar.
         const now = Date.now();
-        const card = panelCard(this._latest, this._settings.get_string('panel-mode'), now);
+        const card = panelCard(this._shown(this._latest), this._settings.get_string('panel-mode'), now);
         const reading = usageReading(card, now);
 
         // The saved name of the live login leads the readout, so a glance at

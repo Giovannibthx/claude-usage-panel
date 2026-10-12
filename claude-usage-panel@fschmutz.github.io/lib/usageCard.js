@@ -53,6 +53,17 @@ class UsageCard extends St.BoxLayout {
         this.add_child(this._forecast);
         this.add_child(this._spark);
         this.add_child(this._trend);
+        this._compact = false;
+    }
+
+    // Compact: name, percentage, bar and the reset countdown. The caret, the
+    // pool note, the pace, the forecast, the sparkline and the trend go.
+    setCompact(compact) {
+        this._compact = Boolean(compact);
+        if (this._compact)
+            this.add_style_class_name('cu-card-compact');
+        else
+            this.remove_style_class_name('cu-card-compact');
     }
 
     update(card, history, fc, trend) {
@@ -72,7 +83,7 @@ class UsageCard extends St.BoxLayout {
         // is unknown (no reset, or a group we have no span for).
         // Clock pace and burn rate are both drawn from the percentage, so a
         // card that shows `–` shows neither: they would contradict the dash.
-        const pace = reading.known ? clockPace(card) : null;
+        const pace = reading.known && !this._compact ? clockPace(card) : null;
         this._clockRow.visible = pace !== null;
         if (pace)
             this._clockRow.setMark(pace.elapsedPercent, pace.state === 'ahead');
@@ -82,20 +93,21 @@ class UsageCard extends St.BoxLayout {
         const reset = formatResets(card.resetsAt);
         const note = poolNote(card);
         const paceText = formatClockPace(pace);
-        this._reset.text = [reset, note, paceText, readingNote(reading)]
+        this._reset.text = (this._compact ? [reset] : [reset, note, paceText, readingNote(reading)])
             .filter(s => s).join(' · ');
+        this._reset.visible = this._reset.text.length > 0;
         // Burn-rate projection: amber when the limit runs out before its reset,
         // quiet grey when the pace outlasts it, hidden when there is no honest
         // pace to project (idle, too few samples).
-        const fcText = reading.known ? formatForecast(fc) : '';
+        const fcText = reading.known && !this._compact ? formatForecast(fc) : '';
         this._forecast.text = fcText;
         this._forecast.visible = fcText.length > 0;
         this._forecast.style_class =
             `cu-forecast${fc?.exhaustsBeforeReset ? ' cu-warning' : ''}`;
-        const spark = sparkline(historyPercents(history).slice(-12));
+        const spark = this._compact ? '' : sparkline(historyPercents(history).slice(-12));
         this._spark.text = spark;
         this._spark.visible = spark.length > 0;
-        const trendText = formatWeekOverWeek(trend);
+        const trendText = this._compact ? '' : formatWeekOverWeek(trend);
         this._trend.text = trendText;
         this._trend.visible = trendText.length > 0;
     }

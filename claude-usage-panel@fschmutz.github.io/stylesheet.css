@@ -61,6 +61,12 @@
     background-color: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
+/* compact: name, percentage, bar and reset on a tighter card */
+.cu-card-compact {
+    spacing: 4px;
+    padding: 8px 12px;
+    border-radius: 10px;
+}
 .cu-card:hover {
     background-color: rgba(255, 255, 255, 0.07);
 }

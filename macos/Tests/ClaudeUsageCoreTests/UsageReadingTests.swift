@@ -75,4 +75,18 @@ final class UsageReadingTests: XCTestCase {
                 PanelCard.pick(cards, mode: mode, now: now)?.id, c["expected"] as? String, name)
         }
     }
+
+    func testShownCardsFiltersLikeTheOtherPorts() throws {
+        let fix = try fixture()
+        for c in fix["shownCards"] as! [[String: Any]] {
+            let cards = (c["cards"] as! [[String: Any]]).map { raw in
+                LimitCard(
+                    id: raw["key"] as! String, label: raw["key"] as! String, percent: 0,
+                    severity: .normal, resetsAt: nil, active: false, scoped: raw["scoped"] as! Bool)
+            }
+            XCTAssertEqual(
+                ShownCards.filter(cards, showModelLimits: c["showModelLimits"] as! Bool).map(\.id),
+                c["expected"] as! [String], c["name"] as! String)
+        }
+    }
 }

@@ -395,6 +395,9 @@ The normalization contract (must stay identical across ports):
   readings first, ties to the first in `KIND_ORDER`); `worstPercent`,
   `usageCacheEntry` and the auto-switch skip unknown readings.
   `tests/fixtures/reading.json`.
+- `shownCards(cards, showModelLimits)` (Swift `ShownCards`) is the list both
+  panels draw and rank for the top bar: with per-model limits off the scoped
+  cards drop out. Alerts, history and the usage cache still read every card.
 - Both top bars draw the logo's arc live: `panelGauge(reading, severity,
   exhaustsBeforeReset)` (Swift `PanelGauge`) gives the fill (the honest
   reading over 100, empty for none) and the tone (the severity, lifted to

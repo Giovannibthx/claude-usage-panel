@@ -44,6 +44,11 @@ struct SettingsView: View {
             Picker("Refresh interval", selection: $model.refreshMinutes) {
                 ForEach([1, 5, 10, 15, 30, 60], id: \.self) { Text("\($0) min").tag($0) }
             }
+            Toggle("Show the weekly Fable card", isOn: $model.showModelLimits)
+                .help(
+                    "Off hides it; its usage still counts in the weekly card, "
+                        + "and alerts still fire.")
+            Toggle("Compact cards (name, percent, bar, reset)", isOn: $model.compactCards)
             Toggle("Limit-crossing alerts (90% / 100%)", isOn: $model.alertsEnabled)
             Toggle("Start at login", isOn: $model.launchAtLogin)
             TextField("Run on limit crossing or reset", text: $model.eventCommand)

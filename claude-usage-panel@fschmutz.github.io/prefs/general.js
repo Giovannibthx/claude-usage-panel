@@ -39,6 +39,20 @@ export function buildBehavior(prefs, settings) {
         settings.set_string('panel-mode', row.get_selected() === 1 ? 'session' : 'worst'));
     behavior.add(modeRow);
 
+    const modelRow = new Adw.SwitchRow({
+        title: _('Per-model limits'),
+        subtitle: _('Show the weekly Fable card. Off hides it; its usage still counts in the weekly card, and alerts still fire.'),
+    });
+    settings.bind('show-model-limits', modelRow, 'active', 0);
+    behavior.add(modelRow);
+
+    const compactRow = new Adw.SwitchRow({
+        title: _('Compact cards'),
+        subtitle: _('Name, percentage, bar and reset only'),
+    });
+    settings.bind('compact-cards', compactRow, 'active', 0);
+    behavior.add(compactRow);
+
     const alertsRow = new Adw.SwitchRow({
         title: _('Limit-crossing alerts'),
         subtitle: _('Notify when a limit reaches 90% or 100%'),

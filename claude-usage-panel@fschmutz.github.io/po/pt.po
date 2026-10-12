@@ -16,76 +16,76 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: extension.js:196
+#: extension.js:200
 msgid "Extra usage"
 msgstr "Uso extra"
 
-#: extension.js:306
+#: extension.js:310
 #, javascript-format
 msgid "%s - retrying, showing the last reading"
 msgstr "%s - a tentar de novo, a mostrar a última leitura"
 
-#: extension.js:343
+#: extension.js:347
 #, javascript-format
 msgid "Updated %s"
 msgstr "Atualizado %s"
 
-#: extension.js:380
+#: extension.js:384
 msgid "Session cost: computing…"
 msgstr "Custo da sessão: a calcular…"
 
-#: extension.js:385
+#: extension.js:389
 #, javascript-format
 msgid "Session cost: $%s · %s tokens (est.)"
 msgstr "Custo da sessão: $%s · %s tokens (est.)"
 
-#: extension.js:387
+#: extension.js:391
 msgid "Session cost: unavailable (install ccusage)"
 msgstr "Custo da sessão: indisponível (instale o ccusage)"
 
-#: extension.js:417
+#: extension.js:421
 #, javascript-format
 msgid "%s (%d%% of the cap)"
 msgstr "%s (%d%% do limite)"
 
-#: extension.js:434
+#: extension.js:438
 #, javascript-format
 msgid "last %s"
 msgstr "último %s"
 
-#: extension.js:434 prefs/pings.js:96
+#: extension.js:438 prefs/pings.js:96
 msgid "never"
 msgstr "nunca"
 
-#: extension.js:438
+#: extension.js:442
 #, javascript-format
 msgid "next %s"
 msgstr "próximo %s"
 
-#: extension.js:440
+#: extension.js:444
 #, javascript-format
 msgid "Session pings: %s"
 msgstr "Pings de sessão: %s"
 
-#: extension.js:452 extension.js:456 lib/accountsSection.js:535
+#: extension.js:456 extension.js:460 lib/accountsSection.js:535
 #: lib/boardSection.js:212 lib/boardSection.js:218 lib/headerBar.js:42
-#: lib/pauseSection.js:211 lib/pauseSection.js:222 lib/sessionsSection.js:173
-#: lib/sessionsSection.js:183 lib/waitingSection.js:121
+#: lib/pauseSection.js:211 lib/pauseSection.js:222 lib/sessionsSection.js:175
+#: lib/sessionsSection.js:185 lib/waitingSection.js:121
 #: lib/waitingSection.js:128 lib/waitingSection.js:136
 msgid "Claude usage"
 msgstr "Utilização do Claude"
 
-#: extension.js:453
+#: extension.js:457
 #, javascript-format
 msgid "%s reached %d%%"
 msgstr "%s atingiu %d%%"
 
-#: extension.js:457
+#: extension.js:461
 #, javascript-format
 msgid "%s is on pace to run out before it resets"
 msgstr "%s vai esgotar-se antes de reiniciar ao ritmo atual"
 
-#: extension.js:581
+#: extension.js:599
 msgid "Claude ?"
 msgstr "Claude ?"
 
@@ -582,19 +582,19 @@ msgstr "Não foi possível escrever as unidades do systemd: %s"
 msgid "Today’s sessions"
 msgstr "Sessões de hoje"
 
-#: lib/sessionsSection.js:111
+#: lib/sessionsSection.js:113
 msgid "Today’s sessions (est., still indexing)"
 msgstr "Sessões de hoje (est., ainda a indexar)"
 
-#: lib/sessionsSection.js:112
+#: lib/sessionsSection.js:114
 msgid "Today’s sessions (est.)"
 msgstr "Sessões de hoje (est.)"
 
-#: lib/sessionsSection.js:174
+#: lib/sessionsSection.js:176
 msgid "No terminal found - set one in the extension preferences."
 msgstr "Nenhum terminal encontrado - defina um nas preferências da extensão."
 
-#: lib/sessionsSection.js:183
+#: lib/sessionsSection.js:185
 #, javascript-format
 msgid "Could not open %s"
 msgstr "Não foi possível abrir %s"
@@ -754,22 +754,42 @@ msgid "Current session"
 msgstr "Sessão atual"
 
 #: prefs/general.js:43
+msgid "Per-model limits"
+msgstr "Limites por modelo"
+
+#: prefs/general.js:44
+msgid ""
+"Show the weekly Fable card. Off hides it; its usage still counts in the "
+"weekly card, and alerts still fire."
+msgstr ""
+"Mostrar o cartão semanal do Fable. Desligado oculta-o; o seu uso continua a "
+"contar no cartão semanal e os alertas continuam ativos."
+
+#: prefs/general.js:50
+msgid "Compact cards"
+msgstr "Cartões compactos"
+
+#: prefs/general.js:51
+msgid "Name, percentage, bar and reset only"
+msgstr "Apenas nome, percentagem, barra e reposição"
+
+#: prefs/general.js:57
 msgid "Limit-crossing alerts"
 msgstr "Alertas ao ultrapassar limites"
 
-#: prefs/general.js:44
+#: prefs/general.js:58
 msgid "Notify when a limit reaches 90% or 100%"
 msgstr "Notificar quando um limite atingir 90% ou 100%"
 
-#: prefs/general.js:53
+#: prefs/general.js:67
 msgid "Run on limit crossing or reset"
 msgstr "Executar ao ultrapassar um limite ou ao reiniciar"
 
-#: prefs/general.js:62
+#: prefs/general.js:76
 msgid "Placeholders"
 msgstr "Marcadores"
 
-#: prefs/general.js:64
+#: prefs/general.js:78
 msgid ""
 "%e event (threshold or reset) · %l label · %p percent · %t threshold · %k "
 "key · %% a literal %. Empty disables it. Example: notify-send \"Claude %l\" "

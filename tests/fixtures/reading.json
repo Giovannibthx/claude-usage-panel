@@ -200,5 +200,26 @@
       "cards": [],
       "expected": null
     }
+  ],
+  "shownCardsComment": "Per-model limits off: the scoped sub-caps drop out of the list and the top-bar ranking; every other card stays, in payload order. On: the list as is.",
+  "shownCards": [
+    {
+      "name": "on keeps every card",
+      "showModelLimits": true,
+      "cards": [{"key": "session", "scoped": false}, {"key": "weekly_all", "scoped": false}, {"key": "weekly_scoped:Fable", "scoped": true}],
+      "expected": ["session", "weekly_all", "weekly_scoped:Fable"]
+    },
+    {
+      "name": "off drops the per-model sub-cap",
+      "showModelLimits": false,
+      "cards": [{"key": "session", "scoped": false}, {"key": "weekly_all", "scoped": false}, {"key": "weekly_scoped:Fable", "scoped": true}],
+      "expected": ["session", "weekly_all"]
+    },
+    {
+      "name": "off with no scoped card changes nothing",
+      "showModelLimits": false,
+      "cards": [{"key": "session", "scoped": false}, {"key": "weekly_all", "scoped": false}],
+      "expected": ["session", "weekly_all"]
+    }
   ]
 }

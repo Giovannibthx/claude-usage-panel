@@ -467,6 +467,16 @@ public enum UsageForecast {
 /// The one card a single-reading surface shows. Mirrors lib/pure/usage.js
 /// `panelCard()` (GNOME + every Node client); tests/fixtures/reading.json
 /// "panelCard" pins both.
+/// The cards a panel lists and ranks for its menu bar. With per-model limits
+/// turned off, the scoped sub-caps (Fable) drop out; their usage still moves
+/// the all-models card they draw from. Alerts read every card regardless.
+/// Mirrors the GNOME extension's lib/pure.js `shownCards`.
+public enum ShownCards {
+    public static func filter(_ cards: [LimitCard], showModelLimits: Bool) -> [LimitCard] {
+        showModelLimits ? cards : cards.filter { !$0.scoped }
+    }
+}
+
 public enum PanelCard {
     public enum Mode: String, Sendable {
         case worst, session

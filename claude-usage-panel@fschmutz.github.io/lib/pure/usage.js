@@ -227,6 +227,17 @@ export function panelCard(cards, mode = 'worst', nowMs = Date.now()) {
     }).card;
 }
 
+/**
+ * The cards a panel lists and ranks for its top bar. With per-model limits
+ * turned off, the scoped sub-caps (Fable) drop out; their usage still moves
+ * the all-models card they draw from. Alerts read every card regardless.
+ * Swift twin: ShownCards. Pinned by tests/fixtures/reading.json `shownCards`.
+ */
+export function shownCards(cards, showModelLimits = true) {
+    const list = Array.isArray(cards) ? cards : [];
+    return showModelLimits ? list : list.filter(c => c?.scoped !== true);
+}
+
 // ── Extra usage (prepaid credits beyond the plan) ───────────────────────────
 // The payload's `spend` object: money already charged this cycle against the
 // cap the account allows. It is NOT one of the limits[] - it has no window and

@@ -30,6 +30,8 @@ private struct ProgressBar: View {
 
 private struct CardView: View {
     let card: LimitCard
+    /// Name, percentage, bar and reset countdown only.
+    let compact: Bool
     let spark: String
     let forecast: Forecast?
     /// Week-over-week peak - the one thing the 6-hour forecast cannot say.
@@ -43,8 +45,8 @@ private struct CardView: View {
         let color = Color.severity(card.severity)
         // Clock pace and burn rate are both drawn from the percentage, so a
         // card that shows `–` shows neither: they would contradict the dash.
-        let pace = reading.known ? UsageClock.pace(card) : nil
-        VStack(alignment: .leading, spacing: 6) {
+        let pace = reading.known && !compact ? UsageClock.pace(card) : nil
+        VStack(alignment: .leading, spacing: compact ? 4 : 6) {
             HStack {
                 Text(card.label).font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.primary.opacity(0.85))
@@ -62,34 +64,38 @@ private struct CardView: View {
                 // than adding one, so its reset line carries that note - same
                 // reset as the all-models card it draws from.
                 Text(
-                    [
-                        ResetCountdown.text(card.resetsAt), UsageNormalizer.poolNote(card),
-                        UsageClock.format(pace), Self.readingNote(reading),
-                    ]
-                    .filter { !$0.isEmpty }.joined(separator: " · ")
+                    (compact
+                        ? [ResetCountdown.text(card.resetsAt)]
+                        : [
+                            ResetCountdown.text(card.resetsAt), UsageNormalizer.poolNote(card),
+                            UsageClock.format(pace), Self.readingNote(reading),
+                        ])
+                        .filter { !$0.isEmpty }.joined(separator: " · ")
                 ).font(.system(size: 11))
                     .foregroundColor(.secondary)
                 Spacer()
-                if !spark.isEmpty {
+                if !compact, !spark.isEmpty {
                     Text(spark).font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }
             // Burn-rate projection: amber when the limit runs out before its
             // reset, quiet when the pace outlasts it, absent when idle.
-            if reading.known, let fc = forecast {
+            if !compact, reading.known, let fc = forecast {
                 Text(UsageForecast.format(fc)).font(.system(size: 11))
                     .foregroundColor(fc.exhaustsBeforeReset ? .cuWarning : .secondary)
             }
-            if let trend {
+            if !compact, let trend {
                 Text(Warehouse.format(trend)).font(.system(size: 11))
                     .foregroundColor(.secondary)
             }
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color.primary.opacity(0.05)))
+        .padding(compact ? 8 : 12)
+        .background(
+            RoundedRectangle(cornerRadius: compact ? 10 : 14).fill(Color.primary.opacity(0.05))
+        )
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: compact ? 10 : 14)
                 .stroke(
                     card.severity == .critical ? color.opacity(0.35) : Color.primary.opacity(0.08)))
     }
@@ -161,9 +167,9 @@ struct PopupView: View {
                 Text(err).font(.system(size: 12)).foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                ForEach(model.cards) {
+                ForEach(model.shownCards) {
                     CardView(
-                        card: $0,
+                        card: $0, compact: model.compactCards,
                         spark: Sparkline.render(Sparkline.percents(model.history[$0.id] ?? [])),
                         forecast: model.forecasts[$0.id], trend: model.trends[$0.id])
                 }
