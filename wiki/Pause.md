@@ -123,6 +123,11 @@ touches:
 }}
 ```
 
+A headless session (`claude -p`, the Agent SDK: `CLAUDE_CODE_SESSION_ATTENDED=0`
+or an `sdk-*` `CLAUDE_CODE_ENTRYPOINT`) gets no waiter: print mode waits for its
+SessionStart hooks, so `wait` exits 0 at once there. The PreToolUse backstop
+still covers it.
+
 ```text
  claudectl session pause --all
         │  writes pause/request.json  {id, kind, targets: [sid...], sessions: [{name, cwd}]}

@@ -92,6 +92,19 @@ test('waiter: leaves when its claude dies, and after /clear moved the session id
     assert.equal(fs.existsSync(path.join(pauseDir(io2), `${A}.delivered.json`)), false);
 });
 
+test('waiter: a headless session (claude -p, the SDK) never arms, a request pending or not', async (t) => {
+    const io = liveWorld(t);
+    send(io);
+    for (const env of [{CLAUDE_CODE_SESSION_ATTENDED: '0'}, {CLAUDE_CODE_ENTRYPOINT: 'sdk-cli'}, {CLAUDE_CODE_ENTRYPOINT: 'sdk-ts'}]) {
+        assert.deepEqual(await startWaiter(payload(A), {...io, env: {...io.env, ...env}, maxMs: 5000}).done, {code: 0, text: ''});
+    }
+    assert.equal(fs.existsSync(path.join(pauseDir(io), `${A}.waiter`)), false, 'no lock taken');
+    assert.equal(fs.existsSync(path.join(pauseDir(io), `${A}.delivered.json`)), false, 'the request stays for a pretool backstop');
+    // an attended CLI session still delivers it
+    const w = startWaiter(payload(A), {...io, env: {...io.env, CLAUDE_CODE_ENTRYPOINT: 'cli', CLAUDE_CODE_SESSION_ATTENDED: '1'}, maxMs: 5000});
+    assert.equal((await w.done).code, 2);
+});
+
 test('waiter: an expired request is never delivered', async (t) => {
     const io = liveWorld(t);
     const pause = openPause(io);
@@ -154,6 +167,21 @@ test('`pause-hook.js wait` wakes with exit 2 and the protocol on stderr; pretool
     assert.equal(first.status, 0, first.stderr);
     assert.equal(JSON.parse(first.stdout).hookSpecificOutput.permissionDecision, 'deny');
     assert.equal(pre(B).stdout, '');
+});
+
+// The env `claude -p` gives its SessionStart hook (probed on 2.1.296): the
+// hook must answer at once, or print mode hangs on it.
+test('`pause-hook.js wait` in a headless session exits 0 at once, no lock', (t) => {
+    const io = liveWorld(t, SELF(A, 'API'));
+    const started = Date.now();
+    const r = spawnSync(process.execPath, [HOOK, 'wait'], {
+        env: {...hookEnv(io), CLAUDE_CODE_ENTRYPOINT: 'sdk-cli', CLAUDE_CODE_SESSION_ATTENDED: '0'},
+        input: JSON.stringify(payload(A, {hook_event_name: 'SessionStart', source: 'startup'})),
+        encoding: 'utf8', timeout: 10_000,
+    });
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(Date.now() - started < 5000, 'returned without waiting');
+    assert.equal(fs.existsSync(path.join(pauseDir(io), `${A}.waiter`)), false);
 });
 
 test('`pause-hook.js wait` leaves on SIGTERM with exit 0 and its lock removed', async (t) => {

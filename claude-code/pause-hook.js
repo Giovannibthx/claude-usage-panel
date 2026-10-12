@@ -23,6 +23,11 @@
 // session ids, and both hooks pass CLAUDE_PID to the claim, so a process
 // that reopened the id later does not take a request sent to the old one.
 //
+// A headless session (`claude -p`, the SDK) gets no waiter: print mode waits
+// for its SessionStart hooks, so a waiter there hangs the run until Claude
+// Code gives up ("No messages returned from query"). Claude Code marks it
+// CLAUDE_CODE_SESSION_ATTENDED=0 and an `sdk-*` CLAUDE_CODE_ENTRYPOINT.
+//
 // Never throws: a crashing hook is worse than a missed delivery.
 
 import fs from 'node:fs';
@@ -47,6 +52,11 @@ const WAIT_MAX_MS = (PAUSE_HOOK_TIMEOUT_S - 60) * 1000;
 function sessionOf(payload) {
   const id = payload?.session_id ?? payload?.sessionId;
   return isPauseSessionId(id) ? id : null;
+}
+
+/** True for a session nobody sits at: print mode, the Agent SDK. */
+export function unattended(env) {
+  return env.CLAUDE_CODE_SESSION_ATTENDED === '0' || /^sdk-/.test(env.CLAUDE_CODE_ENTRYPOINT ?? '');
 }
 
 function claudePid(env) {
@@ -107,8 +117,9 @@ export function startWaiter(payload, io = {}) {
     };
     try {
       const sid = sessionOf(payload);
-      if (!sid || payload?.agent_id !== undefined) return finish(0);
-      const owner = claudePid(io.env ?? process.env);
+      const env = io.env ?? process.env;
+      if (!sid || payload?.agent_id !== undefined || unattended(env)) return finish(0);
+      const owner = claudePid(env);
       const pause = openPause(io);
       release = pause.acquireWaiter(sid);
       if (!release) return finish(0); // another live waiter serves this session

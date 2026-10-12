@@ -6,6 +6,14 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`claude -p` no longer hangs with the pause hooks installed.** The
+  `pause-hook.js wait` waiter armed on a headless SessionStart too, and print
+  mode waits for it, so the run ended in "No messages returned from query".
+  It now exits 0 at once when Claude Code marks the session unattended
+  (`CLAUDE_CODE_SESSION_ATTENDED=0` or an `sdk-*` entrypoint).
+
 ## [3.10.0] - 2026-10-12
 
 ### Added
