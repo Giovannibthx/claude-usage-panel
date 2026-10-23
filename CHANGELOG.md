@@ -67,6 +67,14 @@ semantic versioning.
   `extension.js` into `lib/samples.js`. No behaviour change; `extension.js` was
   at the 700-line ceiling.
 
+### Fixed
+
+- `claudectl <group> <cmd> --help` no longer compiles the group word from argv
+  as a regular expression: `claudectl 'session(' open --help` crashed with
+  "Invalid regular expression" (CodeQL js/regex-injection).
+- `check-deps` reported a live `track:` hold as "matches no pin" whenever only
+  the image digest had moved upstream, failing the weekly `deps` job.
+
 ## [3.10.1] - 2026-10-13
 
 ### Fixed

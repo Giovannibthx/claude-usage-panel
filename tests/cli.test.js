@@ -173,3 +173,11 @@ test('a pre-2.0 claude-account shim counts as an installed cli, so update migrat
     const r = run('bash', [INSTALL, '--list'], {env: env(home)});
     assert.match(r.stdout, /installed: .*\bcli\b/);
 });
+
+test('commandSynopsis: a group word from argv is text, never a pattern', () => {
+    const help = 'Usage:\n  claudectl session open NAME\n';
+    // `(` would throw "Invalid regular expression"; `.` would match any char
+    assert.equal(commandSynopsis(help, 'session(', 'open'), null);
+    assert.equal(commandSynopsis(help, 's.ssion', 'open'), null);
+    assert.equal(commandSynopsis(help, 'session', 'open'), '  claudectl session open NAME');
+});

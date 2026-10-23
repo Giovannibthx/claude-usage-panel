@@ -25,8 +25,14 @@ export function helpRequest(argv) {
  *  command. `[cmd]` matches too (`claudectl waiting [list]`). */
 export function commandSynopsis(help, group, cmd) {
   const lines = help.split('\n');
-  const head = new RegExp(`^\\s*claudectl ${group} \\[?${cmd.replace(/[^\w-]/g, '')}\\]?(\\s|$)`);
-  const start = lines.findIndex((l) => head.test(l));
+  // Both words come from argv: matched as text, never compiled as a pattern.
+  const name = cmd.replace(/[^\w-]/g, '');
+  const head = (l) => {
+    const [word, sub = ''] = l.trimStart().split(/\s+/).slice(1);
+    return l.trimStart().startsWith('claudectl ') && word === group &&
+      (sub === name || sub === `[${name}]`);
+  };
+  const start = lines.findIndex(head);
   if (start < 0) return null;
   const block = [lines[start]];
   for (const l of lines.slice(start + 1)) {
