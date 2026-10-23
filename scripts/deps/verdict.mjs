@@ -74,7 +74,7 @@ export function verdict(pin, upstream, {hold = null, openPr = null, now = Date.n
         if (hold?.version)
             return {level: 'fail', hold, msg: `${who}: held at ${hold.version} but already current - delete the hold (dependency-holds:${hold.line})`};
         if (upstream.digest && pin.digest && upstream.digest !== pin.digest)
-            return dueOrFresh(`${who}:${pin.current} digest moved upstream`, upstream.digestUpdatedAt, openPr, now);
+            return dueOrFresh(`${who}:${pin.current} digest moved upstream`, upstream.digestUpdatedAt, openPr, now, hold);
         return {level: 'pass', hold, msg: `${who} ${pin.current}${hold?.track ? ` (newest ${hold.track}.x, tracked by dependency-holds:${hold.line})` : ''}`};
     }
     if (hold?.version) {

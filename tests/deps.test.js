@@ -192,3 +192,14 @@ test('audit: an advisory fails unless declared, and a declaration nothing hits f
     assert.deepEqual(declared.filter(r => r.level === 'fail').map(r => r.msg),
         ['dependency-holds:3: audit z GHSA-zzzz-zzzz-zzzz matches no finding - delete it']);
 });
+
+test('verdict: a track hold stays consulted when only the digest moved', () => {
+    // The bash32 image sits on its newest 3.2 tag; a digest-only move must not
+    // drop the hold, or freshness reports a live hold as "matches no pin".
+    const {holds: [hold]} = parseHolds('docker bash track:3.2 the bash macOS ships\n');
+    const p = {kind: 'docker', name: 'bash', current: '3.2.57', digest: 'sha256:old', file: 'f'};
+    const up = {latest: '3.2.57', digest: 'sha256:new', digestUpdatedAt: NOW - DAY};
+    const r = verdict(p, up, {hold, now: NOW});
+    assert.equal(r.level, 'info');
+    assert.equal(r.hold, hold);
+});
