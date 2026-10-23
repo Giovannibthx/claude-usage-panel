@@ -29,6 +29,9 @@ function toolPath(name) {
 
 /** {status, stdout, stderr} for any exit code; stderr is captured, not leaked
  *  into the runner's own output. */
+/** `s` as a literal inside a RegExp source: every metacharacter escaped. */
+export const escapeRegExp = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export function run(cmd, args, opts = {}) {
     const tool = TOOLS.find((t) => t === cmd);
     if (!tool) {

@@ -13,6 +13,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {TERMINALS} from '../claude-usage-panel@fschmutz.github.io/lib/pure.js';
+import {escapeRegExp} from './helpers.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const EXT = 'claude-usage-panel@fschmutz.github.io';
@@ -178,7 +179,6 @@ test('CLAUDE.md names every pure/ module and every ClaudeUsageCore file', () => 
         assert.ok(md.includes(`\`${f}\``), `CLAUDE.md misses ClaudeUsageCore/${f}`);
 });
 
-const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 test('wiki/Architecture.md tree names every source file of every port', () => {
     const tree = read('wiki/Architecture.md').match(/```text\n([\s\S]*?)```/)[1];

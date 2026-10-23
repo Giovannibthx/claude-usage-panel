@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
-import {run, stubbedHome} from './helpers.js';
+import {escapeRegExp, run, stubbedHome} from './helpers.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const INSTALL = path.join(ROOT, 'install.sh');
@@ -136,7 +136,7 @@ test('a zip of another version is refused', (t) => {
     const m = mac(t, {bundleVersion: '0.0.1'});
     const r = run('bash', [INSTALL, 'macos', '--prebuilt'], {env: m.env});
     assert.notEqual(r.status, 0);
-    assert.match(r.stdout, new RegExp(`the zip is v0\\.0\\.1, not v${VERSION.replace(/\./g, '\\.')}`));
+    assert.match(r.stdout, new RegExp(`the zip is v0\\.0\\.1, not v${escapeRegExp(VERSION)}`));
 });
 
 test('a release without the zip fails loudly', (t) => {
