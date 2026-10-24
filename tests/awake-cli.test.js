@@ -4,6 +4,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
 
 import {openAwake} from '../claude-code/awake.js';
 import {durationFlag, main, statusLines} from '../claude-code/awake-cli.js';
@@ -25,6 +26,9 @@ function world(t, {platform = 'linux', sessions = 0} = {}) {
     settleMs: 0,
     pidAlive: (pid) => pid === process.pid,
     exec: () => '',
+    // Never the host's sysfs: its thermal zones and battery would decide.
+    thermalDir: path.join(io.home, 'no-thermal'),
+    powerSupplyDir: path.join(io.home, 'no-power-supply'),
     stdout: (s) => out.push(s),
     // No real holder: the CLI's `start` waits for session.json, so the stub
     // writes it the way the holder would.

@@ -44,6 +44,10 @@ function world(t, {platform = 'darwin', answers = {}, now = NOW, sessions = 0} =
       ...io, platform, exec, nowMs: () => state.now, hostname: 'box',
       pidAlive: (pid) => pid === process.pid,
       liveSessions: () => sessions, settleMs: 0,
+      // Never the host's sysfs: a hot CPU under the full suite ended a Linux
+      // hold with 'thermal', and a laptop on low battery would end it too.
+      thermalDir: path.join(io.home, 'no-thermal'),
+      powerSupplyDir: path.join(io.home, 'no-power-supply'),
     };
     return {io: full, awake: openAwake(full), calls, state, dir: awakeDir(io)};
 }
