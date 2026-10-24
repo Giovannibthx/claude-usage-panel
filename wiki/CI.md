@@ -12,6 +12,7 @@ reported `success`.
 
 ```text
 lint (pre-commit) ─┐
+private-names ─────┤
 js ────────────────┤
 screenshots ───────┤
 i18n ──────────────┤
@@ -28,6 +29,13 @@ extension reached the template and every catalog) and compiles each catalog
 with `msgfmt --check`; pre-commit's `i18n-catalogs` hook runs the same check
 locally but skips it when gettext is missing, so this job is the one that
 cannot be skipped.
+
+`private-names` runs `scripts/check-private-names.sh --all` over the tree and
+the full history (diffs, messages, identities), with the list and an optional
+mailmap written from the `PRIVATE_NAMES` and `PRIVATE_MAILMAP` secrets - this
+repository is public, so neither lives in it. A missing list fails. A fork PR
+gets no secrets: the job says so and passes, and the merge on main is checked.
+Findings print where, never what.
 
 `deps` runs `node scripts/check-deps.mjs`, on every push and weekly on a
 schedule: every pinned version (actions, hook revs, the npm/pip tool pins under

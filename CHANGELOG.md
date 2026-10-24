@@ -74,6 +74,12 @@ semantic versioning.
   "Invalid regular expression" (CodeQL js/regex-injection).
 - `check-deps` reported a live `track:` hold as "matches no pin" whenever only
   the image digest had moved upstream, failing the weekly `deps` job.
+- The private-names guard now runs in CI: a `private-names` job checks the
+  tree and the full history (`--all`) from the `PRIVATE_NAMES` secret and
+  fails without it (a fork PR, which gets no secrets, is checked on main
+  after the merge). It reads identities through a private mailmap kept
+  outside the repo (`PRIVATE_MAILMAP`), so an old work address is mapped away
+  without being written into the public tree.
 
 ## [3.10.1] - 2026-10-13
 

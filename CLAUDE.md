@@ -503,8 +503,11 @@ with the user's Admin API key.
 - **Public repo guards** (pre-commit + CI): `private-names` fails on any
   internal project/customer/work name in files, commit messages, authors
   (`scripts/check-private-names.sh`; the regex list lives OUTSIDE the repo at
-  `~/.config/claude-usage-panel/private-names.txt`, CI requires it, findings
-  print location only). `no-em-dash` bans U+2014 in every text file: use `-`.
+  `~/.config/claude-usage-panel/private-names.txt`, old work addresses mapped
+  away in a `mailmap` beside it - never a tracked `.mailmap`, it would spell
+  the name out; the `private-names` CI job writes both from the
+  `PRIVATE_NAMES` / `PRIVATE_MAILMAP` secrets, runs `--all` on full history
+  and fails without a list, except on a fork PR; findings print location only). `no-em-dash` bans U+2014 in every text file: use `-`.
 - ESLint runs with `--max-warnings=0`; Swift with `swift format lint --strict`.
   Shell is shellcheck + shfmt (`-i 4 -ci`). All gated by pre-commit **and** CI.
 - Bump `version` in `package.json`, `version-name` in `metadata.json`, and update

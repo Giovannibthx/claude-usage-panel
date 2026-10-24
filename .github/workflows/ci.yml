@@ -68,6 +68,37 @@ jobs:
           # the swift-core job runs it. All other hooks run here.
           SKIP: swift-format
 
+  # The private-names list lives in the PRIVATE_NAMES secret, never in the
+  # repo. Required everywhere except a fork PR, which GitHub gives no secrets:
+  # that one is checked again on main once merged. Full history, because
+  # --all also reads every commit's diff, message and (mailmapped) identity.
+  private-names:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: check-private-names --all
+        env:
+          PRIVATE_NAMES: ${{ secrets.PRIVATE_NAMES }}
+          PRIVATE_MAILMAP: ${{ secrets.PRIVATE_MAILMAP }}
+          FORK_PR: ${{ github.event.pull_request.head.repo.fork == true }}
+        run: |
+          if [ -z "$PRIVATE_NAMES" ] && [ "$FORK_PR" = true ]; then
+            echo "::notice::fork PR: no secrets here; private-names runs on main after the merge"
+            exit 0
+          fi
+          list="$RUNNER_TEMP/private-names.txt"
+          mailmap="$RUNNER_TEMP/mailmap"
+          printf '%s\n' "$PRIVATE_NAMES" >"$list"
+          printf '%s\n' "$PRIVATE_MAILMAP" >"$mailmap"
+          CUP_PRIVATE_NAMES_FILE="$list" CUP_PRIVATE_MAILMAP_FILE="$mailmap" CUP_PRIVATE_NAMES_REQUIRED=1 \
+            scripts/check-private-names.sh --all
+
   # Every Node the package claims: the engines floor in package.json and the
   # active LTS. A floor nothing runs is a floor nobody knows still works.
   js:
@@ -319,7 +350,7 @@ jobs:
   ci-gate:
     name: ci-gate
     if: always()
-    needs: [lint, js, screenshots, i18n, swift-core, macos-app, bash32, plugin-validate, attribution-guard, deps]
+    needs: [lint, private-names, js, screenshots, i18n, swift-core, macos-app, bash32, plugin-validate, attribution-guard, deps]
     runs-on: ubuntu-latest
     permissions: {} # reads only the needs context, never the repo
     timeout-minutes: 5
