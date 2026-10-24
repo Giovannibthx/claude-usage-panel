@@ -76,13 +76,47 @@ case "${1:-}" in
         while IFS= read -r f; do
             scan_files "$f"
         done < <(git ls-files)
+        # History already published cannot be unpublished without a rewrite:
+        # each such commit is DECLARED by full id and kind (diff | message)
+        # with its reason, one per line. An entry that matches nothing fails.
+        history="${CUP_PRIVATE_NAMES_HISTORY:-$(git rev-parse --show-toplevel)/.github/private-names-history}"
+        declared="" used=" "
+        if [ -f "$history" ]; then
+            n=0
+            while IFS= read -r line || [ -n "$line" ]; do
+                n=$((n + 1))
+                case "$line" in '' | '#'*) continue ;; esac
+                read -r h_sha h_kind h_reason <<<"$line"
+                if ! printf '%s' "$h_sha" | grep -qE '^[0-9a-f]{40}$' ||
+                    { [ "$h_kind" != diff ] && [ "$h_kind" != message ]; } || [ -z "$h_reason" ]; then
+                    hit "private-names-history:$n: expected <full commit id> <diff|message> <reason>"
+                    continue
+                fi
+                declared="$declared$h_kind $h_sha $n
+"
+            done <"$history"
+        fi
+        # is_declared KIND FULLSHA: the entry's line number, or nothing
+        is_declared() {
+            printf '%s' "$declared" | awk -v k="$1" -v s="$2" '$1 == k && $2 == s { print $3; exit }'
+        }
+        historic() { # KIND LABEL: hits from `git log ... --format='%H %h'` on stdin
+            local full short at
+            while read -r full short; do
+                at="$(is_declared "$1" "$full")"
+                if [ -n "$at" ]; then
+                    used="$used$at "
+                else
+                    hit "commit $short: its $1 contains a private name"
+                fi
+            done
+        }
         # every commit whose diff adds or removes a match
-        while read -r sha; do
-            hit "commit $sha: its diff contains a private name"
-        done < <(git log --all -i -G "$pattern" --format=%h)
-        while read -r sha; do
-            hit "commit $sha: its message contains a private name"
-        done < <(git log --all -i -E --grep="$pattern" --format=%h)
+        historic diff < <(git log --all -i -G "$pattern" --format='%H %h')
+        historic message < <(git log --all -i -E --grep="$pattern" --format='%H %h')
+        while read -r _ _ at; do
+            case "$used" in *" $at "*) ;; *) hit "private-names-history:$at matches nothing - delete it" ;; esac
+        done < <(printf '%s' "$declared")
         # the identity through the PRIVATE mailmap (%aN/%aE): an old work
         # address mapped there to the person's own is declared. Never a tracked
         # .mailmap - it would have to spell out the very name it maps away.

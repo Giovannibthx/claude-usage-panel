@@ -507,7 +507,9 @@ with the user's Admin API key.
   away in a `mailmap` beside it - never a tracked `.mailmap`, it would spell
   the name out; the `private-names` CI job writes both from the
   `PRIVATE_NAMES` / `PRIVATE_MAILMAP` secrets, runs `--all` on full history
-  and fails without a list, except on a fork PR; findings print location only). `no-em-dash` bans U+2014 in every text file: use `-`.
+  and fails without a list, except on a fork PR; commits published before the
+  guard ran are declared by id + kind + reason in
+  `.github/private-names-history`, never a new one; findings print location only). `no-em-dash` bans U+2014 in every text file: use `-`.
 - ESLint runs with `--max-warnings=0`; Swift with `swift format lint --strict`.
   Shell is shellcheck + shfmt (`-i 4 -ci`). All gated by pre-commit **and** CI.
 - Bump `version` in `package.json`, `version-name` in `metadata.json`, and update

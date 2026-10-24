@@ -79,7 +79,8 @@ semantic versioning.
   fails without it (a fork PR, which gets no secrets, is checked on main
   after the merge). It reads identities through a private mailmap kept
   outside the repo (`PRIVATE_MAILMAP`), so an old work address is mapped away
-  without being written into the public tree.
+  without being written into the public tree. Commits released before the
+  guard ran are declared by id in `.github/private-names-history`.
 
 ## [3.10.1] - 2026-10-13
 

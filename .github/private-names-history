@@ -1,0 +1,16 @@
+# Commits already published with a private name in them, before the
+# private-names guard ran in CI (scripts/check-private-names.sh --all).
+# Removing them would rewrite every later commit and every release tag, which
+# was decided against: they are declared here instead, one per line,
+#
+#   <full commit id> <diff|message> <reason>
+#
+# and the names are never repeated in this file. A new commit is never added
+# here - its name is replaced before it lands. An entry that stops matching
+# fails the guard: delete it.
+fe25038a04e24ba50fbf3179389aa4b8e10aa852 diff released in v1.10.0 (2026-09-01), before the guard ran in CI
+5a12d31add6b138335a0710ecec1528b5ce2d852 diff released in v1.10.0 (2026-09-01), before the guard ran in CI
+28c58aec5f5a3cd0c8035c08a492333b0dea1c56 diff released in v1.12.1 (2026-09-15), before the guard ran in CI
+c1c8d38b431397ebd8c46b7b7a5bcec0d6e71947 message released in v1.13.0 (2026-09-18), before the guard ran in CI
+09cd0b1aa4479380c3c3b9ab8f72de07010f4a19 message released in v1.13.0 (2026-09-18), before the guard ran in CI
+47c863b2ece58c13d300add05aaa9572c5eb7609 diff released in v2.1.1 (2026-09-23): the commit that replaced them with neutral names

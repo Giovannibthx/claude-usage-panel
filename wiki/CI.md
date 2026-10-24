@@ -35,6 +35,9 @@ the full history (diffs, messages, identities), with the list and an optional
 mailmap written from the `PRIVATE_NAMES` and `PRIVATE_MAILMAP` secrets - this
 repository is public, so neither lives in it. A missing list fails. A fork PR
 gets no secrets: the job says so and passes, and the merge on main is checked.
+Commits published before the guard ran in CI are declared one by one (id,
+`diff` or `message`, reason) in `.github/private-names-history`; an entry that
+stops matching fails.
 Findings print where, never what.
 
 `deps` runs `node scripts/check-deps.mjs`, on every push and weekly on a

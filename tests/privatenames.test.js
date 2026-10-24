@@ -80,3 +80,36 @@ test('--all reads the identity through the private mailmap, kept outside the rep
     fs.renameSync(mailmap, path.join(home, 'mailmap.default'));
     assert.equal(all({CUP_PRIVATE_MAILMAP_FILE: path.join(home, 'mailmap.default')}).status, 0);
 });
+
+test('--all: history already published is declared by commit and kind, and a stale entry fails', (t) => {
+    const {home, list} = setup(t);
+    const repo = path.join(home, 'hist');
+    fs.mkdirSync(repo);
+    const git = (...args) => run('git', ['-C', repo, ...args], {env: {...process.env,
+        GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1',
+        GIT_AUTHOR_NAME: 'Dev', GIT_AUTHOR_EMAIL: 'dev@example.com',
+        GIT_COMMITTER_NAME: 'Dev', GIT_COMMITTER_EMAIL: 'dev@example.com'}});
+    git('init', '-q');
+    fs.writeFileSync(path.join(repo, 'a.txt'), 'made for acme-corp\n');
+    git('add', 'a.txt');
+    git('commit', '-q', '-m', 'add it');
+    fs.writeFileSync(path.join(repo, 'a.txt'), 'made for a customer\n');
+    git('commit', '-q', '-am', 'neutral wording');
+    const [first, second] = git('log', '--reverse', '--format=%H').stdout.trim().split('\n');
+    const all = () => run('bash', [SCRIPT, '--all'], {cwd: repo, env: {...process.env,
+        GIT_CONFIG_GLOBAL: '/dev/null', CUP_PRIVATE_NAMES_FILE: list}});
+    const bare = all();
+    assert.equal(bare.status, 1);
+    assert.equal((bare.stdout.match(/its diff contains/g) ?? []).length, 2, 'adding and removing both count');
+    fs.mkdirSync(path.join(repo, '.github'));
+    const decl = path.join(repo, '.github', 'private-names-history');
+    fs.writeFileSync(decl, `# published before the guard\n${first} diff added before the guard ran\n${second} diff the commit that removed it\n`);
+    const declared = all();
+    assert.equal(declared.status, 0, declared.stdout + declared.stderr);
+    fs.appendFileSync(decl, `${second} message nothing in its message\n`);
+    const stale = all();
+    assert.equal(stale.status, 1);
+    assert.match(stale.stdout, /private-names-history:4 matches nothing - delete it/);
+    fs.writeFileSync(decl, `${first} diff\n`);
+    assert.match(all().stdout, /private-names-history:1: expected .*reason/, 'an entry without a reason is malformed');
+});
