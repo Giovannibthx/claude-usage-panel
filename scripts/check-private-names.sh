@@ -13,15 +13,20 @@
 # case-insensitively:
 #
 #   $CUP_PRIVATE_NAMES_FILE, else ${XDG_CONFIG_HOME:-~/.config}/claude-usage-panel/private-names.txt
+#   $CUP_PRIVATE_MAILMAP_FILE, else mailmap next to it (--all: identities)
 #
-# CI writes that file from the PRIVATE_NAMES secret. With no list the check is
-# skipped - a contributor has none - unless CUP_PRIVATE_NAMES_REQUIRED=1, which
-# CI sets on this repository so a missing secret fails instead of passing.
+# CI writes those files from the PRIVATE_NAMES and PRIVATE_MAILMAP secrets.
+# With no list the check is skipped - a contributor has none - unless
+# CUP_PRIVATE_NAMES_REQUIRED=1, which CI sets on this repository so a missing
+# secret fails instead of passing.
 #
 # A finding prints WHERE (file:line, commit id), never WHAT: CI logs are public.
 set -euo pipefail
 
 list="${CUP_PRIVATE_NAMES_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/claude-usage-panel/private-names.txt}"
+# Same place, same reason: old work addresses mapped to the person's own
+# (git mailmap format), read by --all only. Absent = nothing mapped.
+mailmap="${CUP_PRIVATE_MAILMAP_FILE:-$(dirname "$list")/mailmap}"
 if [ ! -s "$list" ]; then
     if [ "${CUP_PRIVATE_NAMES_REQUIRED:-0}" = 1 ]; then
         echo "private-names: no list at $list - required here (set the PRIVATE_NAMES secret)" >&2
@@ -78,11 +83,14 @@ case "${1:-}" in
         while read -r sha; do
             hit "commit $sha: its message contains a private name"
         done < <(git log --all -i -E --grep="$pattern" --format=%h)
+        # the identity through the PRIVATE mailmap (%aN/%aE): an old work
+        # address mapped there to the person's own is declared. Never a tracked
+        # .mailmap - it would have to spell out the very name it maps away.
         while read -r sha who; do
             if printf '%s\n' "$who" | grep -q -i -E "$pattern"; then
                 hit "commit $sha: its author or committer contains a private name"
             fi
-        done < <(git log --all --format='%h %an <%ae> %cn <%ce>')
+        done < <(git -c mailmap.file="$mailmap" log --all --format='%h %aN <%aE> %cN <%cE>')
         ;;
     -h | --help)
         sed -n '2,/^set -euo/p' "$0" | sed '$d; s/^# \{0,1\}//'

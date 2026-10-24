@@ -53,3 +53,30 @@ test('no list: skipped for contributors, a failure where it is required', (t) =>
     assert.equal(required.status, 1);
     assert.match(required.stderr, /required here/);
 });
+
+test('--all reads the identity through the private mailmap, kept outside the repo', (t) => {
+    const {home, list} = setup(t);
+    const repo = path.join(home, 'repo');
+    fs.mkdirSync(repo);
+    const id = {GIT_AUTHOR_NAME: 'Dev', GIT_AUTHOR_EMAIL: 'dev@acme-corp.example',
+        GIT_COMMITTER_NAME: 'Dev', GIT_COMMITTER_EMAIL: 'dev@acme-corp.example'};
+    const git = (...args) => run('git', ['-C', repo, ...args],
+        {env: {...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', ...id}});
+    git('init', '-q');
+    fs.writeFileSync(path.join(repo, 'a.txt'), 'fine\n');
+    git('add', 'a.txt');
+    assert.equal(git('commit', '-q', '-m', 'init').status, 0);
+    const mailmap = path.join(home, 'mailmap');
+    const all = (extra = {}) => run('bash', [SCRIPT, '--all'], {cwd: repo, env: {...process.env,
+        GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', CUP_PRIVATE_NAMES_FILE: list,
+        CUP_PRIVATE_MAILMAP_FILE: mailmap, ...extra}});
+    const raw = all();
+    assert.equal(raw.status, 1, 'no mailmap: the raw work address is reported');
+    assert.match(raw.stdout, /its author or committer contains a private name/);
+    fs.writeFileSync(mailmap, 'Dev <dev@users.noreply.example> <dev@acme-corp.example>\n');
+    const mapped = all();
+    assert.equal(mapped.status, 0, mapped.stdout + mapped.stderr);
+    // the default location is next to the list
+    fs.renameSync(mailmap, path.join(home, 'mailmap.default'));
+    assert.equal(all({CUP_PRIVATE_MAILMAP_FILE: path.join(home, 'mailmap.default')}).status, 0);
+});
